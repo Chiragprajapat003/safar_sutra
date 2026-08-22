@@ -1,4 +1,4 @@
-# 🧭 SafarSutra (सफ़र-सूत्र) – Intelligent Sacred Yatra & Global Travel Planner
+# SafarSutra  – Intelligent Sacred Yatra & Global Travel Planner
 
 > **SafarSutra** is an AI-powered, multi-city travel planning platform tailored for spiritual yatras, heritage journeys, and global adventures. It seamlessly combines real-time generative AI intelligence (Google Gemini), interactive day-by-day itinerary builders, visual budget tracking, and community trip sharing with a premium sapphire-blue aesthetic.
 
