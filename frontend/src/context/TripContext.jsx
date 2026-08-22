@@ -1,11 +1,32 @@
-import { createContext, useContext, useState } from 'react';
-import { mockTrips } from '../services/mockData';
+import { createContext, useContext, useState, useEffect } from 'react';
+
+import { tripsApi } from '../services/api';
 
 const TripContext = createContext(null);
 
 export function TripProvider({ children }) {
-  const [trips, setTrips] = useState(mockTrips);
-  const [toast, setToast] = useState(null);
+  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load trips from backend when component mounts
+  useEffect(() => {
+    async function fetchTrips() {
+      try {
+        const data = await tripsApi.getAll();
+        if (Array.isArray(data.trips)) {
+          setTrips(data.trips);
+        } else {
+          setTrips([]);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch trips, falling back to empty list', err);
+        setTrips([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTrips();
+  }, []);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -70,9 +91,10 @@ export function TripProvider({ children }) {
 
   return (
     <TripContext.Provider value={{
-      trips, addTrip, updateTrip, deleteTrip,
+      trips, loading, addTrip, updateTrip, deleteTrip,
       addActivity, removeActivity, getTripById, toast,
     }}>
+
       {children}
     </TripContext.Provider>
   );
