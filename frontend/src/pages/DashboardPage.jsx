@@ -18,6 +18,17 @@ export default function DashboardPage() {
     setShowAIGenerator(true);
   };
 
+  // Dynamic budget calculations
+  const totalAllocated = trips.reduce((sum, t) => sum + (t.budget || 0), 0);
+  const totalSpent = trips.reduce((sum, t) => sum + (t.spent || 0), 0);
+  const totalDays = trips.reduce((sum, t) => {
+    if (!t.startDate || !t.endDate) return sum;
+    const diff = Math.abs(new Date(t.endDate) - new Date(t.startDate));
+    return sum + Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
+  }, 0);
+  const avgCostPerDay = totalDays > 0 ? Math.round(totalSpent / totalDays) : 0;
+  const budgetUtilizationPct = totalAllocated > 0 ? Math.round((totalSpent / totalAllocated) * 100) : 0;
+
   return (
     <div className="max-w-[1440px] mx-auto px-4 md:px-16 py-12 grid grid-cols-1 lg:grid-cols-12 gap-6">
       
@@ -44,30 +55,55 @@ export default function DashboardPage() {
         <div className="bg-white p-6 rounded-2xl shadow-ambient-md border border-[#c3c6d7]/20">
           <h3 className="text-xs font-bold text-[#666D7A] uppercase tracking-wider mb-4">Travel Stats</h3>
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <span className="text-4xl font-extrabold text-[#0288d1]">{user?.countriesVisited || 0}</span>
-              <p className="text-xs font-semibold text-[#666D7A] mt-1">Countries</p>
+            <div className="p-4 rounded-2xl bg-[#e1f5fe] border border-[#0288d1]/20">
+              <span className="text-3xl font-extrabold text-[#0288d1]">{user?.countriesVisited || 0}</span>
+              <p className="text-xs font-semibold text-[#666D7A] mt-1">Destinations</p>
             </div>
-            <div>
-              <span className="text-4xl font-extrabold text-[#1E1E24]">{trips.length}</span>
+            <div className="p-4 rounded-2xl bg-white border border-[#c3c6d7]/20">
+              <span className="text-3xl font-extrabold text-[#1E1E24]">{trips.length}</span>
               <p className="text-xs font-semibold text-[#666D7A] mt-1">Trips Planned</p>
             </div>
           </div>
         </div>
 
-        {/* Quick Links */}
-        <div className="bg-gradient-to-br from-[#0288d1]/10 to-[#e1f5fe] p-5 rounded-2xl relative overflow-hidden border border-[#0288d1]/10">
-          <div className="absolute -right-3 -bottom-3 opacity-10">
-            <span className="material-symbols-outlined" style={{ fontSize: 80 }}>auto_awesome</span>
+        {/* Budget Highlights Box */}
+        <div className="bg-white p-6 rounded-2xl shadow-ambient-md border border-[#c3c6d7]/20">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-xs font-bold text-[#666D7A] uppercase tracking-wider">Budget Highlights</h3>
+            <Link to="/budget" className="text-xs font-bold text-[#0288d1] hover:underline">Details</Link>
           </div>
-          <h4 className="text-sm font-bold text-[#0288d1] flex items-center gap-2">
-            <span className="material-symbols-outlined text-sm">auto_awesome</span>Need inspiration?
-          </h4>
-          <p className="text-xs text-[#666D7A] mt-1 mb-3 leading-relaxed">Let AI suggest the perfect itinerary based on your preferences.</p>
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs font-semibold text-[#666D7A]">
+              <span>Total Spent: ${totalSpent.toLocaleString()}</span>
+              <span>Allocated: ${totalAllocated.toLocaleString()}</span>
+            </div>
+            <div className="w-full bg-[#e1f5fe] h-2.5 rounded-full overflow-hidden border border-[#0288d1]/20">
+              <div
+                className="bg-[#0288d1] h-full rounded-full"
+                style={{ width: `${Math.min(budgetUtilizationPct, 100)}%` }}
+              />
+            </div>
+            <p className="text-[11px] text-[#666D7A] pt-1">Avg. Cost per day: <strong className="text-[#1E1E24]">${avgCostPerDay}</strong></p>
+          </div>
+        </div>
+
+        {/* AI Travel Inspiration Box */}
+        <div className="bg-gradient-to-br from-[#0288d1] to-[#01579b] p-6 rounded-2xl text-white shadow-ambient-high relative overflow-hidden">
+          <div className="absolute -right-4 -bottom-4 opacity-10">
+            <span className="material-symbols-outlined" style={{ fontSize: 110 }}>temple_hindu</span>
+          </div>
+          <div className="flex items-center gap-2 text-[#b2ebf2] text-xs font-bold uppercase tracking-wider mb-2">
+            <span className="material-symbols-outlined text-base">auto_awesome</span>
+            <span>AI Itinerary Generator</span>
+          </div>
+          <h4 className="text-base font-bold text-white mb-1.5">Personalized Divine Yatras</h4>
+          <p className="text-xs text-white/80 mb-4">
+            Let Safar-sutra AI craft the perfect day-by-day temple visits, Aarti timings, and travel routes.
+          </p>
           <button
             onClick={handleGenerateIdeas}
             disabled={generating}
-            className="bg-[#0288d1] hover:bg-[#01579b] text-white text-xs font-bold px-4 py-2.5 rounded-full w-full transition-colors flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+            className="bg-white text-[#0288d1] hover:bg-white/90 text-xs font-bold px-4 py-2.5 rounded-full w-full transition-colors flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer shadow-sm"
           >
             <span className="material-symbols-outlined text-sm">auto_awesome</span>
             <span>Launch AI Itinerary Builder</span>
