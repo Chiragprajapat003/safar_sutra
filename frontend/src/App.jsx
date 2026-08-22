@@ -38,6 +38,7 @@ function AppRoutes() {
       <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/trips" element={<MyTripsPage />} />
+        <Route path="/trips/new" element={<MyTripsPage />} />
         <Route path="/trips/:id" element={<ItineraryViewPage />} />
         <Route path="/trips/:id/builder" element={<ItineraryBuilderPage />} />
         <Route path="/explore" element={<ExplorePage />} />

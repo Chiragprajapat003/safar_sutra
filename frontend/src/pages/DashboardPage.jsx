@@ -6,8 +6,48 @@ import { mockDestinations } from '../services/mockData';
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { trips } = useTrips();
+  const { trips, addTrip } = useTrips();
   const navigate = useNavigate();
+  const [generating, setGenerating] = useState(false);
+
+  const handleGenerateIdeas = async () => {
+    setGenerating(true);
+    // Simulate AI thinking and building the itinerary
+    await new Promise((r) => setTimeout(r, 1800));
+    const randomDest = mockDestinations[Math.floor(Math.random() * mockDestinations.length)];
+    const cityBase = randomDest.name.split(',')[0];
+    const newTrip = addTrip({
+      name: `${cityBase} AI Explorer`,
+      startDate: '2025-09-10',
+      endDate: '2025-09-17',
+      budget: randomDest.priceLevel === '$' ? 1500 : randomDest.priceLevel === '$$' ? 2500 : randomDest.priceLevel === '$$$' ? 4000 : 6000,
+      coverImage: randomDest.image,
+      stops: [cityBase],
+      days: [
+        {
+          day: 1,
+          date: '2025-09-10',
+          city: cityBase,
+          activities: [
+            { id: 101, name: 'AI Curated: Historic Quarter Orientation Walk', time: '10:00', icon: 'explore', category: 'sightseeing', cost: 0, notes: 'Get familiar with local streets' },
+            { id: 102, name: 'AI Curated: Authentic Regional Lunch', time: '13:00', icon: 'restaurant', category: 'food', cost: 30, notes: 'Enjoy highly rated traditional dishes' },
+            { id: 103, name: 'AI Curated: Panoramic Skyline Sunset View', time: '18:00', icon: 'photo_camera', category: 'sightseeing', cost: 15, notes: 'Excellent photo spot' }
+          ]
+        },
+        {
+          day: 2,
+          date: '2025-09-11',
+          city: cityBase,
+          activities: [
+            { id: 104, name: 'AI Curated: Guided Cultural & Museum Tour', time: '09:30', icon: 'account_balance', category: 'culture', cost: 40, notes: 'Historical sites overview' },
+            { id: 105, name: 'AI Curated: Local Secret Tasting Adventure', time: '15:00', icon: 'restaurant', category: 'food', cost: 25, notes: 'Off-the-beaten-path food tour' }
+          ]
+        }
+      ]
+    });
+    setGenerating(false);
+    navigate(`/trips/${newTrip.id}/builder`);
+  };
 
   const upcomingTrips = trips.filter(t => t.status === 'upcoming' || t.status === 'planning');
 
@@ -56,7 +96,20 @@ export default function DashboardPage() {
             <span className="material-symbols-outlined text-sm">auto_awesome</span>Need inspiration?
           </h4>
           <p className="text-xs text-[#424654] mt-1 mb-3">Let AI suggest the perfect itinerary based on your preferences.</p>
-          <button className="bg-[#0057d9] text-white text-xs font-medium px-4 py-2 rounded-full w-full hover:bg-[#0041a7] transition-colors">Generate Ideas</button>
+          <button
+            onClick={handleGenerateIdeas}
+            disabled={generating}
+            className="bg-[#0057d9] text-white text-xs font-medium px-4 py-2 rounded-full w-full hover:bg-[#0041a7] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+          >
+            {generating ? (
+              <>
+                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                <span>Generating...</span>
+              </>
+            ) : (
+              <span>Generate Ideas</span>
+            )}
+          </button>
         </div>
       </aside>
 

@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: user?.name || '', email: user?.email || '', language: 'English' });
   const [saved, setSaved] = useState(false);
@@ -11,6 +11,7 @@ export default function ProfilePage() {
 
   const handleSave = (e) => {
     e.preventDefault();
+    updateUser({ name: form.name, email: form.email });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };

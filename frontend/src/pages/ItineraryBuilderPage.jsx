@@ -52,6 +52,34 @@ export default function ItineraryBuilderPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDay, setActiveDay] = useState(0);
   const [newCity, setNewCity] = useState('');
+  const [generatingIdeas, setGeneratingIdeas] = useState(false);
+
+  const handleGenerateIdeas = async () => {
+    setGeneratingIdeas(true);
+    // Simulate AI scheduling delay
+    await new Promise((r) => setTimeout(r, 1200));
+    
+    // Curated recommendations for this specific day
+    const aiActs = [
+      { name: 'AI Recommended: Morning Coffee & Local Pastries', category: 'food', cost: 12, description: 'Highly rated hidden gem café.' },
+      { name: 'AI Recommended: Historic Architecture Guided Walk', category: 'culture', cost: 25, description: 'Explore local historical highlights.' },
+      { name: 'AI Recommended: Sunset Scenic Viewpoint & Rest', category: 'relax', cost: 10, description: 'Relaxing panorama overlooking the city.' }
+    ];
+    
+    aiActs.forEach((act, index) => {
+      const hours = 10 + index * 3;
+      addActivity(trip.id, activeDay, {
+        name: act.name,
+        time: `${hours}:00`,
+        icon: CATEGORY_ICONS[act.category] || 'star',
+        category: act.category,
+        cost: act.cost,
+        notes: act.description
+      });
+    });
+    
+    setGeneratingIdeas(false);
+  };
 
   if (!trip) return (
     <div className="flex items-center justify-center h-screen flex-col gap-4">
@@ -203,7 +231,20 @@ export default function ItineraryBuilderPage() {
               <span className="material-symbols-outlined text-sm">auto_awesome</span>Need inspiration?
             </h4>
             <p className="text-xs text-[#424654] mt-1 mb-3">Let AI suggest the perfect itinerary.</p>
-            <button className="bg-[#0057d9] text-white text-xs font-medium px-4 py-2 rounded-full w-full hover:bg-[#0041a7] transition-colors">Generate Ideas</button>
+            <button
+              onClick={handleGenerateIdeas}
+              disabled={generatingIdeas}
+              className="bg-[#0057d9] text-white text-xs font-medium px-4 py-2 rounded-full w-full hover:bg-[#0041a7] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+            >
+              {generatingIdeas ? (
+                <>
+                  <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                  <span>Adding activities...</span>
+                </>
+              ) : (
+                <span>Generate Ideas</span>
+              )}
+            </button>
           </div>
         </div>
       </aside>

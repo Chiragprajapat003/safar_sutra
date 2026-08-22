@@ -39,8 +39,17 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('gt_user');
   };
 
+  const updateUser = (updates) => {
+    setUser(prev => {
+      if (!prev) return null;
+      const next = { ...prev, ...updates };
+      localStorage.setItem('gt_user', JSON.stringify(next));
+      return next;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, signup, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, signup, loading, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
