@@ -1,0 +1,547 @@
+/* ==========================================================================
+   SafarSutra (safar_sutra) - Earth & Gold Theme Stylesheet
+   Created for Odoo 17 Frontend UX/Design
+   ========================================================================== */
+
+// 1. Typography Imports
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari&family=Playfair+Display:wght@400;700&display=swap');
+
+// 2. Color Palette Variables
+$ss-deep-ink: #0f0c1f;
+$ss-dark-purple: #1a1440;
+$ss-midnight: #2d1b69;
+$ss-warm-sand: #f5efe6;
+$ss-terracotta: #c87a5a;
+$ss-gold: #d4af37;
+$ss-gold-light: #f9d976;
+$ss-cream: #faf6f0;
+
+$font-heading: 'Playfair Display', serif;
+$font-body: 'Noto Sans Devanagari', 'Segoe UI', Roboto, sans-serif;
+
+// 3. Mixins
+@mixin ss-glassmorphism {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(15, 12, 31, 0.37);
+}
+
+@mixin ss-gold-gradient-text {
+  background: linear-gradient(135deg, #{$ss-gold}, #{$ss-gold-light}, #{$ss-gold});
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+// 4. Global Typography Overrides (for SafarSutra scope)
+.ss-font-heading {
+  font-family: $font-heading;
+  font-weight: 700;
+}
+
+.ss-font-body {
+  font-family: $font-body;
+}
+
+// 5. Odoo Navbar Customization
+.o_navbar {
+  background: linear-gradient(135deg, $ss-deep-ink, $ss-midnight) !important;
+  border-bottom: 3px solid $ss-gold !important;
+  
+  .nav-link {
+    color: $ss-warm-sand !important;
+    font-family: $font-body;
+    transition: color 0.3s ease;
+    
+    &:hover, &.active {
+      color: $ss-gold !important;
+    }
+  }
+  
+  .navbar-brand {
+    font-family: $font-heading;
+    font-weight: 700;
+    color: $ss-gold !important;
+    background: linear-gradient(135deg, $ss-gold, $ss-gold-light, $ss-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+// 6. Dashboard Hero Section
+.ss-hero-section {
+  position: relative;
+  background: linear-gradient(135deg, $ss-deep-ink, $ss-midnight);
+  color: $ss-cream;
+  padding: 80px 0;
+  overflow: hidden;
+  border-bottom: 1px solid rgba($ss-gold, 0.2);
+  
+  // Gold glow effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -10%;
+    transform: translateY(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba($ss-gold, 0.12) 0%, rgba($ss-deep-ink, 0) 70%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .ss-hero-content {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .ss-hero-title {
+    font-family: $font-heading;
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    @include ss-gold-gradient-text;
+  }
+  
+  .ss-hero-subtext {
+    font-family: $font-body;
+    font-size: 1.5rem;
+    color: $ss-warm-sand;
+    margin-bottom: 2rem;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba($ss-deep-ink, 0.5);
+  }
+  
+  .ss-hero-svg {
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 0 20px rgba($ss-gold, 0.3));
+    animation: ss-float 6s ease-in-out infinite;
+  }
+}
+
+// Float Animation
+@keyframes ss-float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+// 7. Interactive Buttons
+.ss-btn-gold {
+  background: linear-gradient(135deg, $ss-gold, $ss-gold-light);
+  color: #111111 !important;
+  font-family: $font-body;
+  font-weight: 700;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 30px;
+  box-shadow: 0 4px 15px rgba($ss-gold, 0.3);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  
+  &:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 20px rgba($ss-gold, 0.5);
+    background: linear-gradient(135deg, $ss-gold-light, $ss-gold);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// 8. Trip Cards
+.ss-trip-card {
+  background: $ss-warm-sand;
+  border: none;
+  border-left: 5px solid $ss-gold;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba($ss-deep-ink, 0.08);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba($ss-deep-ink, 0.15);
+  }
+  
+  .ss-card-header {
+    background: transparent;
+    border-bottom: 1px solid rgba($ss-terracotta, 0.1);
+    padding: 20px 20px 10px 20px;
+    
+    .ss-trip-name {
+      font-family: $font-heading;
+      color: $ss-deep-ink;
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin: 0;
+    }
+  }
+  
+  .ss-card-body {
+    padding: 20px;
+    flex-grow: 1;
+    font-family: $font-body;
+    color: #4a4a4a;
+    
+    .ss-trip-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      
+      i {
+        color: $ss-terracotta;
+        width: 18px;
+      }
+    }
+  }
+  
+  .ss-card-footer {
+    background: rgba($ss-deep-ink, 0.02);
+    border-top: 1px solid rgba($ss-terracotta, 0.1);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .ss-trip-link {
+      font-family: $font-body;
+      font-weight: 700;
+      color: $ss-terracotta;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s ease;
+      
+      &:hover {
+        color: $ss-midnight;
+      }
+    }
+  }
+}
+
+// 9. Popular Destinations
+.ss-destination-card {
+  position: relative;
+  border-radius: 15px;
+  overflow: hidden;
+  height: 250px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba($ss-deep-ink, 0.1);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  
+  &:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 25px rgba($ss-deep-ink, 0.2);
+    
+    .ss-dest-overlay {
+      background: linear-gradient(to top, rgba($ss-deep-ink, 0.9) 0%, rgba($ss-deep-ink, 0.4) 60%, rgba($ss-deep-ink, 0.2) 100%);
+    }
+    
+    .ss-dest-emoji {
+      transform: scale(1.2) rotate(5deg);
+    }
+  }
+  
+  // Custom styled fallback backgrounds for local environment (Earth colors)
+  &.ss-dest-paris { background: linear-gradient(135deg, #3d2a45, #5e3b67); }
+  &.ss-dest-tokyo { background: linear-gradient(135deg, #1d3345, #2f5470); }
+  &.ss-dest-nyc { background: linear-gradient(135deg, #423829, #6e5e47); }
+  &.ss-dest-manali { background: linear-gradient(135deg, #1b3d2f, #2d674e); }
+
+  .ss-dest-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to top, rgba($ss-deep-ink, 0.8) 0%, rgba($ss-deep-ink, 0.3) 60%, rgba($ss-deep-ink, 0.1) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 25px;
+    z-index: 2;
+    transition: background 0.3s ease;
+  }
+  
+  .ss-dest-emoji {
+    font-size: 3rem;
+    margin-bottom: auto;
+    transition: transform 0.3s ease;
+    display: inline-block;
+  }
+  
+  .ss-dest-name {
+    font-family: $font-heading;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $ss-gold;
+    margin: 0 0 5px 0;
+  }
+  
+  .ss-dest-sub {
+    font-family: $font-body;
+    color: $ss-warm-sand;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+}
+
+// 10. Public Itinerary Glass Page
+.ss-itinerary-page {
+  background: linear-gradient(135deg, $ss-deep-ink, $ss-dark-purple, $ss-midnight);
+  min-height: 100vh;
+  padding: 60px 0;
+  color: $ss-cream;
+  
+  .ss-glass-card {
+    @include ss-glassmorphism;
+    border-radius: 20px;
+    padding: 40px;
+    
+    .ss-itinerary-title {
+      font-family: $font-heading;
+      font-weight: 700;
+      @include ss-gold-gradient-text;
+      margin-bottom: 10px;
+    }
+    
+    .ss-itinerary-dates {
+      font-family: $font-body;
+      color: $ss-warm-sand;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      i {
+        color: $ss-gold;
+      }
+    }
+  }
+}
+
+// 11. Timeline / Stop Styling
+.ss-timeline {
+  position: relative;
+  padding-left: 20px;
+  border-left: 2px dashed rgba($ss-gold, 0.3);
+  margin-left: 10px;
+  
+  .ss-timeline-stop {
+    position: relative;
+    margin-bottom: 40px;
+    
+    // Custom timeline node dot
+    &::before {
+      content: '';
+      position: absolute;
+      left: -27px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: $ss-gold;
+      border: 3px solid $ss-dark-purple;
+      box-shadow: 0 0 8px $ss-gold;
+    }
+    
+    .ss-stop-card {
+      background: rgba(255, 255, 255, 0.04);
+      border-left: 4px solid $ss-gold;
+      border-radius: 8px;
+      padding: 20px;
+      transition: background 0.3s ease;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+      
+      .ss-stop-title {
+        font-family: $font-heading;
+        font-size: 1.3rem;
+        color: $ss-cream;
+        margin-bottom: 5px;
+      }
+      
+      .ss-stop-dates {
+        font-family: $font-body;
+        color: rgba($ss-warm-sand, 0.7);
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+      }
+    }
+  }
+}
+
+// 12. Activity Items
+.ss-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ss-activity-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba($ss-deep-ink, 0.3);
+  padding: 12px 18px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-family: $font-body;
+  
+  .ss-activity-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    
+    .ss-activity-name {
+      font-weight: 500;
+      color: $ss-cream;
+    }
+    
+    .ss-activity-duration {
+      font-size: 0.85rem;
+      color: rgba($ss-warm-sand, 0.6);
+    }
+  }
+  
+  .ss-activity-cost {
+    font-weight: 700;
+    color: $ss-gold;
+  }
+}
+
+// 13. Activity Badges
+.ss-badge {
+  font-family: $font-body;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  &.ss-badge-adventure {
+    background: #e74c3c;
+    color: white;
+  }
+  
+  &.ss-badge-food {
+    background: #f1c40f;
+    color: #1a1a1a;
+  }
+  
+  &.ss-badge-sightseeing {
+    background: #3498db;
+    color: white;
+  }
+  
+  &.ss-badge-relax {
+    background: #2ecc71;
+    color: white;
+  }
+}
+
+// 14. Budget Progress Ring & Summary
+.ss-budget-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: rgba($ss-gold, 0.05);
+  border: 1px solid rgba($ss-gold, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+// Conic-gradient for dynamic display (to be set in inline styles or fallback default)
+.ss-budget-ring {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: conic-gradient($ss-gold 70%, rgba(255, 255, 255, 0.1) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 0 10px rgba($ss-gold, 0.2);
+  
+  // Inner ring mask to make it a circular ring instead of pie chart
+  &::after {
+    content: '';
+    position: absolute;
+    width: 56px;
+    height: 56px;
+    background: #1e1342; // Fallback matches inner glass card color
+    border-radius: 50%;
+    z-index: 1;
+  }
+  
+  // Inner content (percentage text or icons)
+  .ss-budget-ring-inner {
+    position: relative;
+    z-index: 2;
+    font-family: $font-heading;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: $ss-gold;
+  }
+}
+
+.ss-budget-details {
+  font-family: $font-body;
+  
+  .ss-budget-label {
+    font-size: 0.85rem;
+    color: rgba($ss-warm-sand, 0.6);
+    margin-bottom: 2px;
+  }
+  
+  .ss-budget-value {
+    font-family: $font-heading;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: $ss-gold;
+    @include ss-gold-gradient-text;
+  }
+}
+
+// 15. Empty State styling
+.ss-empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  background: rgba($ss-deep-ink, 0.02);
+  border: 2px dashed rgba($ss-terracotta, 0.2);
+  border-radius: 12px;
+  
+  .ss-empty-icon {
+    font-size: 3rem;
+    color: rgba($ss-terracotta, 0.5);
+    margin-bottom: 15px;
+  }
+  
+  .ss-empty-title {
+    font-family: $font-heading;
+    font-size: 1.25rem;
+    color: $ss-deep-ink;
+    margin-bottom: 8px;
+  }
+  
+  .ss-empty-desc {
+    font-family: $font-body;
+    color: #777777;
+    margin-bottom: 20px;
+  }
+}
