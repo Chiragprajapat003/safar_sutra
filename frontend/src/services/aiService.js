@@ -117,13 +117,26 @@ export async function chatWithSafarAI(userMessage, conversationHistory = []) {
         }
       }
     } catch (error) {
-      console.warn('API fetch attempt failed, using intelligent travel engine:', error);
+      console.warn('Direct client API call failed, trying backend proxy:', error.message);
     }
+  }
+
+  // Try backend AI proxy if available
+  try {
+    const { aiApi } = await import('./api');
+    const res = await aiApi.chat(userMessage, conversationHistory);
+    if (res && res.reply) {
+      return res.reply;
+    }
+  } catch (err) {
+    console.warn('Backend AI proxy unavailable, using intelligent travel engine:', err.message);
   }
 
   // High-Quality Intelligent Travel Engine (Customized to every location)
   return generateIntelligentTravelGuide(userMessage);
 }
+
+
 
 /**
  * Generate a complete, structured Trip Object using Real AI

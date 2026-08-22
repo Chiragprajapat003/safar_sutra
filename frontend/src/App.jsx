@@ -43,6 +43,9 @@ function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/trips/:id/share" element={<SharedItineraryPage />} />
+      <Route path="/share/:token" element={<SharedItineraryPage />} />
+      <Route path="/itinerary/view" element={<SharedItineraryPage />} />
+
 
       {/* Protected App Routes under AppLayout */}
       <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
