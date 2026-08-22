@@ -1,0 +1,27 @@
+# ============================================
+# SafarSutra Backend — GitIgnore
+# ============================================
+
+# Environment Secrets (CRITICAL)
+.env
+.env.local
+*.env
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# Database dumps or temporary test files
+*.sql.gz
+*.dump
+src/test_*.js
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
