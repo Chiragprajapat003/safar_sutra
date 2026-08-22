@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="ss_public_itinerary" name="SafarSutra Public Shared Itinerary">
+        <t t-call="website.layout">
+            <div class="ss-itinerary-page">
+                <div class="container py-5">
+                    <!-- Main Glassmorphism Card -->
+                    <div class="ss-glass-card shadow-lg">
+                        
+                        <!-- Header with Trip Name & Dates -->
+                        <div class="row mb-5">
+                            <div class="col-12 text-center text-md-start">
+                                <span class="text-uppercase tracking-wider font-weight-bold" style="color: #c87a5a; letter-spacing: 2px;">Public Shared Journey</span>
+                                <h1 class="ss-itinerary-title ss-font-heading mt-2" t-esc="trip.name"/>
+                                <div class="ss-itinerary-dates ss-font-body justify-content-center justify-content-md-start">
+                                    <i class="fa fa-calendar-alt"></i>
+                                    <span>
+                                        <t t-esc="trip.start_date"/> to <t t-esc="trip.end_date"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Stops Section -->
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h3 class="ss-font-heading mb-4" style="color: #d4af37; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 10px;">
+                                    📍 Route Timeline
+                                </h3>
+                                
+                                <t t-if="trip.stop_ids">
+                                    <div class="ss-timeline">
+                                        <!-- Loop through trip stops -->
+                                        <t t-foreach="trip.stop_ids" t-as="stop">
+                                            <div class="ss-timeline-stop">
+                                                <div class="ss-stop-card">
+                                                    <!-- Stop Details -->
+                                                    <div class="d-flex justify-content-between align-items-start flex-wrap">
+                                                        <div>
+                                                            <h4 class="ss-stop-title ss-font-heading">
+                                                                <span t-esc="stop.city"/>, <span t-esc="stop.country"/>
+                                                            </h4>
+                                                            <div class="ss-stop-dates ss-font-body">
+                                                                <i class="fa fa-clock me-1"></i>
+                                                                <span t-esc="stop.start_date"/> – <span t-esc="stop.end_date"/>
+                                                            </div>
+                                                        </div>
+                                                        <span class="badge bg-dark text-light ss-font-body px-3 py-2 border border-secondary">
+                                                            Stop <t t-esc="stop_index + 1"/>
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- Loop through stop activities -->
+                                                    <t t-if="stop.activity_ids">
+                                                        <div class="ss-activity-list mt-3">
+                                                            <t t-foreach="stop.activity_ids" t-as="activity">
+                                                                <div class="ss-activity-item">
+                                                                    <div class="ss-activity-info">
+                                                                        <!-- Icon based on activity type -->
+                                                                        <t t-if="activity.type == 'adventure'"><span class="fs-5">🧗</span></t>
+                                                                        <t t-elif="activity.type == 'food'"><span class="fs-5">🍳</span></t>
+                                                                        <t t-elif="activity.type == 'relax'"><span class="fs-5">🌿</span></t>
+                                                                        <t t-else=""><span class="fs-5">🏛️</span></t>
+                                                                        
+                                                                        <div>
+                                                                            <span class="ss-activity-name d-block" t-esc="activity.name"/>
+                                                                            <span class="ss-activity-duration">
+                                                                                <i class="fa fa-hourglass-half me-1"></i>
+                                                                                <t t-esc="activity.duration"/> mins
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                    <div class="d-flex align-items-center gap-3">
+                                                                        <!-- Dynamic Badge Class based on Type -->
+                                                                        <span t-attf-class="ss-badge ss-badge-#{activity.type or 'sightseeing'}" t-esc="activity.type or 'sightseeing'"/>
+                                                                        <span class="ss-activity-cost">₹<t t-esc="activity.cost"/></span>
+                                                                    </div>
+                                                                </div>
+                                                            </t>
+                                                        </div>
+                                                    </t>
+                                                    
+                                                    <t t-else="">
+                                                        <p class="text-white-50 ss-font-body mt-2 mb-0">No activities scheduled for this stop.</p>
+                                                    </t>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                                
+                                <t t-else="">
+                                    <div class="alert alert-secondary bg-transparent border-secondary text-white ss-font-body">
+                                        No stops have been added to this itinerary yet.
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- Sidebar Section (Budget & Sharing details) -->
+                            <div class="col-lg-4 mt-5 mt-lg-0">
+                                <div class="p-4 rounded" style="background: rgba(15, 12, 31, 0.4); border: 1px solid rgba(255,255,255,0.05);">
+                                    <h3 class="ss-font-heading mb-4" style="color: #d4af37;">
+                                        💼 Budget Allocation
+                                    </h3>
+                                    
+                                    <!-- Budget Progress Ring -->
+                                    <div class="ss-budget-container">
+                                        <div class="ss-budget-ring" style="background: conic-gradient(#d4af37 100%, rgba(255, 255, 255, 0.1) 0);">
+                                            <div class="ss-budget-ring-inner">
+                                                <i class="fa fa-check text-warning"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ss-budget-details">
+                                            <div class="ss-budget-label">Total Allocated Budget</div>
+                                            <div class="ss-budget-value">₹<span t-esc="trip.total_budget"/></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Share Box Info -->
+                                    <div class="mt-4 p-3 rounded" style="background: rgba(200, 122, 90, 0.1); border: 1px solid rgba(200, 122, 90, 0.2);">
+                                        <h5 class="ss-font-heading text-white mb-2" style="font-size: 1.1rem;">🌍 Invite Others</h5>
+                                        <p class="text-white-50 ss-font-body mb-3" style="font-size: 0.85rem;">
+                                            Copy the URL in your browser address bar to share this premium itinerary with friends, family, or the community.
+                                        </p>
+                                        <button class="btn btn-sm btn-outline-warning w-100 ss-font-body" onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied to clipboard!');">
+                                            <i class="fa fa-copy me-1"></i> Copy Share Link
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

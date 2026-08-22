@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="ss_dashboard_template" name="SafarSutra User Dashboard">
+        <t t-call="website.layout">
+            <!-- 1. Hero Section -->
+            <section class="ss-hero-section">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-7 ss-hero-content text-start">
+                            <h1 class="ss-hero-title ss-font-heading">🗺️ SafarSutra</h1>
+                            <p class="ss-hero-subtext ss-font-body">اپنی یاترا کا سوتر خود لکھیں<br/>अपनी यात्रा का सूत्र खुद लिखें</p>
+                            <p class="lead text-white-50 ss-font-body mb-4">
+                                Craft personalized, intelligent multi-city travel itineraries. Keep track of destinations, activities, and budgets in one beautiful space.
+                            </p>
+                            <!-- Clickable CTA Button -->
+                            <a href="#" class="ss-btn-gold ss-font-body">
+                                <i class="fa fa-plus-circle"></i> Plan New Trip
+                            </a>
+                        </div>
+                        <div class="col-lg-5 text-center d-none d-lg-block">
+                            <!-- Decorative Globe/SVG -->
+                            <svg class="ss-hero-svg" width="320" height="320" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#d4af37" />
+                                        <stop offset="50%" stop-color="#f9d976" />
+                                        <stop offset="100%" stop-color="#d4af37" />
+                                    </linearGradient>
+                                    <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" stop-color="#d4af37" stop-opacity="0.3" />
+                                        <stop offset="100%" stop-color="#0f0c1f" stop-opacity="0" />
+                                    </radialGradient>
+                                </defs>
+                                <!-- Glow backdrop -->
+                                <circle cx="50" cy="50" r="48" fill="url(#glowGrad)" />
+                                <!-- Globe Grid Lines -->
+                                <circle cx="50" cy="50" r="35" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" stroke-dasharray="1 1" opacity="0.6"/>
+                                <circle cx="50" cy="50" r="28" fill="none" stroke="url(#goldGrad)" stroke-width="1" opacity="0.4"/>
+                                <ellipse cx="50" cy="50" rx="35" ry="12" fill="none" stroke="url(#goldGrad)" stroke-width="1.2" opacity="0.5"/>
+                                <ellipse cx="50" cy="50" rx="12" ry="35" fill="none" stroke="url(#goldGrad)" stroke-width="1.2" opacity="0.5"/>
+                                <line x1="15" y1="50" x2="85" y2="50" stroke="url(#goldGrad)" stroke-width="1.2" opacity="0.5"/>
+                                <line x1="50" y1="15" x2="50" y2="85" stroke="url(#goldGrad)" stroke-width="1.2" opacity="0.5"/>
+                                <!-- Traveling plane arc -->
+                                <path d="M 20 80 Q 50 15 80 30" fill="none" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" />
+                                <!-- Plane symbol -->
+                                <path d="M 80 30 L 73 28 L 76 33 Z" fill="url(#goldGrad)" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Dashboard Body -->
+            <main class="container my-5 ss-font-body">
+                <!-- 2. Upcoming Trips Section -->
+                <div class="row mb-5">
+                    <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="ss-font-heading" style="color: #0f0c1f;">📅 Your Upcoming Voyages</h2>
+                    </div>
+                    
+                    <!-- Loop through user trips -->
+                    <t t-if="trips">
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                            <t t-foreach="trips" t-as="trip">
+                                <div class="col">
+                                    <div class="ss-trip-card">
+                                        <div class="ss-card-header">
+                                            <h3 class="ss-trip-name" t-esc="trip.name"/>
+                                        </div>
+                                        <div class="ss-card-body">
+                                            <div class="ss-trip-meta-item">
+                                                <i class="fa fa-calendar-alt"></i>
+                                                <span>
+                                                    <t t-esc="trip.start_date"/> to <t t-esc="trip.end_date"/>
+                                                </span>
+                                            </div>
+                                            <div class="ss-trip-meta-item">
+                                                <i class="fa fa-map-marker-alt"></i>
+                                                <span>
+                                                    <t t-esc="len(trip.stop_ids)"/> Stops Planned
+                                                </span>
+                                            </div>
+                                            <div class="ss-trip-meta-item">
+                                                <i class="fa fa-wallet"></i>
+                                                <span>Budget: ₹<t t-esc="trip.total_budget"/></span>
+                                            </div>
+                                        </div>
+                                        <div class="ss-card-footer">
+                                            <a t-attf-href="/trip/#{trip.id}/share" class="ss-trip-link">
+                                                View Itinerary <i class="fa fa-arrow-right ms-1"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    
+                    <!-- Empty State -->
+                    <t t-else="">
+                        <div class="col-12">
+                            <div class="ss-empty-state">
+                                <div class="ss-empty-icon">🌍</div>
+                                <h3 class="ss-empty-title">No voyages planned yet</h3>
+                                <p class="ss-empty-desc">Your journals are empty. Start mapping your dream destinations today!</p>
+                                <a href="#" class="ss-btn-gold">
+                                    <i class="fa fa-plus-circle"></i> Plan Your First Trip
+                                </a>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <hr class="my-5" style="border-top: 1px solid rgba(200, 122, 90, 0.2);" />
+
+                <!-- 3. Popular Destinations Section -->
+                <div class="row">
+                    <div class="col-12 mb-4">
+                        <h2 class="ss-font-heading" style="color: #0f0c1f;">🔥 Popular Destinations</h2>
+                        <p class="text-muted">Need inspiration? Explore the world's most sought-after routes</p>
+                    </div>
+                    
+                    <!-- Hardcoded Clickable Visual Cards -->
+                    <div class="row g-4">
+                        <!-- Paris -->
+                        <div class="col-6 col-lg-3">
+                            <div class="ss-destination-card ss-dest-paris">
+                                <div class="ss-dest-overlay">
+                                    <span class="ss-dest-emoji">🗼</span>
+                                    <h4 class="ss-dest-name">Paris</h4>
+                                    <p class="ss-dest-sub">France</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tokyo -->
+                        <div class="col-6 col-lg-3">
+                            <div class="ss-destination-card ss-dest-tokyo">
+                                <div class="ss-dest-overlay">
+                                    <span class="ss-dest-emoji">🎌</span>
+                                    <h4 class="ss-dest-name">Tokyo</h4>
+                                    <p class="ss-dest-sub">Japan</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- NYC -->
+                        <div class="col-6 col-lg-3">
+                            <div class="ss-destination-card ss-dest-nyc">
+                                <div class="ss-dest-overlay">
+                                    <span class="ss-dest-emoji">🗽</span>
+                                    <h4 class="ss-dest-name">New York</h4>
+                                    <p class="ss-dest-sub">USA</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Manali -->
+                        <div class="col-6 col-lg-3">
+                            <div class="ss-destination-card ss-dest-manali">
+                                <div class="ss-dest-overlay">
+                                    <span class="ss-dest-emoji">🏔️</span>
+                                    <h4 class="ss-dest-name">Manali</h4>
+                                    <p class="ss-dest-sub">India</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </t>
+    </template>
+</odoo>
