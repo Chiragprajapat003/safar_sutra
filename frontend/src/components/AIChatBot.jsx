@@ -11,6 +11,104 @@ const STARTER_PROMPTS = [
   'Recommend 4 days in Kedarnath & Rishikesh',
 ];
 
+/**
+ * Beautiful Rich Markdown Parser & Formatter for Chat Messages
+ */
+function MarkdownMessage({ text }) {
+  if (!text) return null;
+
+  // Split by line breaks
+  const lines = text.split('\n');
+
+  return (
+    <div className="space-y-1.5 text-xs text-[#2A180C] leading-relaxed">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          return <div key={idx} className="h-1" />;
+        }
+
+        // Header with Emojis or bold e.g. "🏰 **Royal Jaipur Heritage & Forts Guide:**"
+        if (trimmed.startsWith('**') && trimmed.endsWith('**') || trimmed.includes('**') && trimmed.endsWith(':**') || trimmed.endsWith(':*')) {
+          const cleanText = trimmed.replace(/\*\*/g, '').replace(/\*/g, '');
+          return (
+            <div key={idx} className="pt-1.5 pb-0.5">
+              <span className="font-extrabold text-[#4A2E18] text-xs tracking-tight bg-[#FAF7F2] px-2 py-0.5 rounded-md border border-[#EADBCE] inline-block shadow-2xs">
+                {cleanText}
+              </span>
+            </div>
+          );
+        }
+
+        // Numbered list item e.g. "1. **Amber Fort & Palace (Amer):**"
+        const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+        if (numMatch) {
+          const num = numMatch[1];
+          const content = numMatch[2];
+          return (
+            <div key={idx} className="flex items-start gap-2 pt-1.5">
+              <span className="w-5 h-5 rounded-full bg-[#4A2E18] text-[#E8C59A] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                {num}
+              </span>
+              <div className="flex-1 font-bold text-[#3A2312]">
+                {renderInlineFormatted(content)}
+              </div>
+            </div>
+          );
+        }
+
+        // Bullet point e.g. "• *Highlights:* ..." or "- ..."
+        if (trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('* ')) {
+          const bulletContent = trimmed.replace(/^[•\-\*]\s*/, '');
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-3 py-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C88A4B] shrink-0 mt-1.5" />
+              <div className="flex-1 text-[#4A3427]">
+                {renderInlineFormatted(bulletContent)}
+              </div>
+            </div>
+          );
+        }
+
+        // Standard paragraph
+        return (
+          <p key={idx} className="leading-relaxed">
+            {renderInlineFormatted(trimmed)}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Format inline **bold** and *italic* text safely
+ */
+function renderInlineFormatted(str) {
+  if (!str) return '';
+
+  // Match bold **word** or italic *word*
+  const parts = str.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <strong key={i} className="font-bold text-[#24140A]">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith('*') && part.endsWith('*')) {
+      return (
+        <em key={i} className="text-[#6B5646] font-semibold not-italic text-[11px]">
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+    return part;
+  });
+}
+
 export default function AIChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [showKeyModal, setShowKeyModal] = useState(false);
@@ -49,7 +147,6 @@ export default function AIChatBot() {
     setIsTyping(true);
 
     try {
-      // Call real AI service with Gemini / OpenAI
       const aiReply = await chatWithSafarAI(query, messages);
 
       const aiMsg = {
@@ -85,8 +182,8 @@ export default function AIChatBot() {
         id: Date.now(),
         sender: 'ai',
         text: apiKeyInput
-          ? '✓ AI API Key saved! Live generative models (Gemini / OpenAI) are now actively powering your travel queries.'
-          : 'API Key cleared. Switched back to smart AI mode.',
+          ? '✓ AI API Key saved! Live generative models (Gemini / OpenAI) are actively powering your travel queries.'
+          : 'API Key cleared. Switched to smart AI mode.',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       },
     ]);
@@ -110,7 +207,7 @@ export default function AIChatBot() {
 
       {/* ── AI Chat Dialog Drawer ── */}
       {isOpen && (
-        <div className="fixed bottom-24 right-4 sm:right-8 z-50 w-[calc(100vw-32px)] sm:w-[420px] h-[580px] max-h-[85vh] bg-[#FAF7F2] rounded-3xl border border-[#EADBCE] shadow-2xl flex flex-col overflow-hidden animate-slideUp select-none">
+        <div className="fixed bottom-24 right-4 sm:right-8 z-50 w-[calc(100vw-32px)] sm:w-[430px] h-[600px] max-h-[85vh] bg-[#FAF7F2] rounded-3xl border border-[#EADBCE] shadow-2xl flex flex-col overflow-hidden animate-slideUp select-none">
           {/* Header */}
           <div className="bg-[#4A2E18] text-white p-4 px-5 flex items-center justify-between shadow-md">
             <div className="flex items-center gap-3">
@@ -206,15 +303,19 @@ export default function AIChatBot() {
                     </div>
                   )}
 
-                  <div className={`max-w-[85%] space-y-1.5`}>
+                  <div className={`max-w-[88%] space-y-1.5`}>
                     <div
-                      className={`p-3.5 rounded-2xl leading-relaxed whitespace-pre-line shadow-xs ${
+                      className={`p-3.5 rounded-2xl shadow-xs ${
                         isAi
                           ? 'bg-white text-[#2A180C] border border-[#EADBCE] rounded-tl-sm'
-                          : 'bg-[#4A2E18] text-[#FFFDF9] rounded-tr-sm'
+                          : 'bg-[#4A2E18] text-[#FFFDF9] rounded-tr-sm leading-relaxed'
                       }`}
                     >
-                      {msg.text}
+                      {isAi ? (
+                        <MarkdownMessage text={msg.text} />
+                      ) : (
+                        <p>{msg.text}</p>
+                      )}
                     </div>
                     <span className={`text-[10px] text-[#8A715F] block px-1 ${isAi ? 'text-left' : 'text-right'}`}>
                       {msg.time}
@@ -234,7 +335,7 @@ export default function AIChatBot() {
                   <span className="w-1.5 h-1.5 rounded-full bg-[#D4A373] animate-bounce" />
                   <span className="w-1.5 h-1.5 rounded-full bg-[#D4A373] animate-bounce [animation-delay:0.2s]" />
                   <span className="w-1.5 h-1.5 rounded-full bg-[#D4A373] animate-bounce [animation-delay:0.4s]" />
-                  <span className="text-[10px] text-[#8A715F] ml-1 font-semibold">Generating answer...</span>
+                  <span className="text-[10px] text-[#8A715F] ml-1 font-semibold">Generating plan...</span>
                 </div>
               </div>
             )}

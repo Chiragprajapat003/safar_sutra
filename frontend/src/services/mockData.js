@@ -127,6 +127,8 @@ export const mockDestinations = [
     costIndex: 'Affordable',
     category: 'Spiritual',
     badge: 'Trending Sacred',
+    lat: 26.7922,
+    lng: 82.1998,
     description: 'Ancient holy city on the banks of Sarayu, home of Shri Ram Janmabhoomi.',
   },
   {
@@ -142,6 +144,8 @@ export const mockDestinations = [
     costIndex: 'Moderate',
     category: 'Heritage',
     badge: 'Royal Wonder',
+    lat: 26.9124,
+    lng: 75.7873,
     description: 'The historic Pink City with grand forts, palaces, and vibrant Rajasthani culture.',
   },
   {
@@ -157,6 +161,8 @@ export const mockDestinations = [
     costIndex: 'Affordable',
     category: 'Nature',
     badge: 'Eco Sanctuary',
+    lat: 26.5775,
+    lng: 93.1711,
     description: 'UNESCO World Heritage wildlife haven with sprawling emerald tea plantations.',
   },
   {
@@ -172,6 +178,8 @@ export const mockDestinations = [
     costIndex: 'Premium',
     category: 'Beach & Island',
     badge: 'Tropical Bliss',
+    lat: 11.9761,
+    lng: 92.9876,
     description: 'Pristine coral reefs, azure lagoons, and tranquil tropical island beaches.',
   },
   {
@@ -187,6 +195,8 @@ export const mockDestinations = [
     costIndex: 'Budget Friendly',
     category: 'Spiritual',
     badge: 'Ancient City',
+    lat: 25.3176,
+    lng: 82.9739,
     description: 'The eternal spiritual capital of India along the sacred river Ganges.',
   },
   {
@@ -198,11 +208,13 @@ export const mockDestinations = [
     image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&auto=format&fit=crop&q=80',
     bestTime: 'Mar–May',
     priceLevel: '$$$$',
-    popularity: 96,
-    costIndex: 'Luxury',
-    category: 'Culture',
-    badge: 'Global Heritage',
-    description: 'Classical Buddhist temples, sublime gardens, and traditional wooden houses.',
+    popularity: 92,
+    costIndex: 'Premium',
+    category: 'Heritage',
+    badge: 'Ancient Imperial',
+    lat: 35.0116,
+    lng: 135.7681,
+    description: 'Classical Buddhist temples, magnificent gardens, imperial palaces, and traditional wooden houses.',
   },
 ];
 
