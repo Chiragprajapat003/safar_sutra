@@ -2,156 +2,168 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTrips } from '../context/TripContext';
 
-const STATUS_COLORS = {
-  upcoming: 'bg-green-100 text-green-700',
-  planning: 'bg-blue-100 text-blue-700',
-  idea: 'bg-yellow-100 text-yellow-700',
-  past: 'bg-[#eceef0] text-[#424654]',
-};
-
 export default function MyTripsPage() {
   const { trips, deleteTrip } = useTrips();
   const navigate = useNavigate();
-  const [filter, setFilter] = useState('all');
-  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
 
-  const filtered = filter === 'all' ? trips : trips.filter(t => t.status === filter);
-
-  const handleDelete = (id) => {
-    deleteTrip(id);
-    setConfirmDelete(null);
-  };
+  const filteredTrips = trips.filter((t) => filterStatus === 'all' || t.status === filterStatus);
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 md:px-16 py-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-12 py-8">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-semibold text-[#191c1e]">My Trips</h1>
-          <p className="text-base text-[#424654] mt-1">{trips.length} trips planned</p>
+          <h1 className="text-3xl font-extrabold text-[#2A180C] tracking-tight">My Yatras & Trips</h1>
+          <p className="text-sm text-[#6B5646] mt-1">Manage and review all your planned spiritual and holiday itineraries.</p>
         </div>
-        <button
-          onClick={() => navigate('/trips/new')}
-          className="bg-[#0057d9] text-white rounded-full px-5 py-2.5 text-sm font-medium hover:bg-[#0041a7] transition-colors flex items-center gap-2 self-start shadow-ambient-low"
-        >
-          <span className="material-symbols-outlined text-lg">add</span>Plan New Trip
-        </button>
+
+        {/* View Toggle */}
+        <div className="flex bg-white p-1 rounded-2xl border border-[#EADBCE] shadow-xs">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`p-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              viewMode === 'grid' ? 'bg-[#4A2E18] text-[#FFFDF9]' : 'text-[#6B5646]'
+            }`}
+            title="Grid View"
+          >
+            <span className="material-symbols-outlined text-lg">grid_view</span>
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`p-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              viewMode === 'list' ? 'bg-[#4A2E18] text-[#FFFDF9]' : 'text-[#6B5646]'
+            }`}
+            title="List View"
+          >
+            <span className="material-symbols-outlined text-lg">view_list</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 mb-7 flex-wrap">
-        {['all', 'upcoming', 'planning', 'idea', 'past'].map(f => (
+      <div className="flex flex-wrap gap-2.5 mb-8">
+        {['all', 'upcoming', 'planning', 'idea'].map((st) => (
           <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors capitalize ${
-              filter === f ? 'bg-[#0057d9] text-white' : 'bg-white text-[#424654] border border-[#c3c6d7]/50 hover:bg-[#eceef0]'
+            key={st}
+            onClick={() => setFilterStatus(st)}
+            className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              filterStatus === st
+                ? 'bg-[#4A2E18] text-[#FFFDF9] shadow-xs'
+                : 'bg-white text-[#6B5646] border border-[#EADBCE] hover:border-[#4A2E18]'
             }`}
           >
-            {f === 'all' ? 'All Trips' : f.charAt(0).toUpperCase() + f.slice(1)}
+            {st} ({trips.filter((t) => st === 'all' || t.status === st).length})
           </button>
         ))}
       </div>
 
-      {/* Empty State */}
-      {filtered.length === 0 && (
-        <div className="bg-white rounded-2xl border-2 border-dashed border-[#c3c6d7]/50 p-16 text-center">
-          <span className="material-symbols-outlined text-5xl text-[#737686] mb-3 block">luggage</span>
-          <p className="font-semibold text-[#191c1e] text-lg mb-1">No {filter !== 'all' ? filter : ''} trips yet</p>
-          <p className="text-[#424654] text-sm">Start planning your next adventure!</p>
+      {/* Content Rendering */}
+      {filteredTrips.length === 0 ? (
+        <div className="bg-white rounded-3xl p-16 text-center border border-dashed border-[#D8C6B6]">
+          <span className="material-symbols-outlined text-5xl text-[#8A715F] mb-3">luggage</span>
+          <h3 className="text-base font-bold text-[#2A180C]">No trips found for this category</h3>
+          <p className="text-xs text-[#8A715F] mt-1">Start planning your next sacred yatra or adventure!</p>
         </div>
-      )}
-
-      {/* Trip Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map(trip => (
-          <div key={trip.id} className="bg-white rounded-2xl overflow-hidden shadow-ambient-md border border-[#c3c6d7]/20 group flex flex-col">
-            {/* Image */}
-            <div className="relative h-48 overflow-hidden">
-              <img src={trip.coverImage} alt={trip.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-              <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${STATUS_COLORS[trip.status] || STATUS_COLORS.idea}`}>
-                {trip.status}
-              </span>
-            </div>
-
-            {/* Content */}
-            <div className="p-5 flex flex-col flex-1">
-              <h3 className="text-lg font-semibold text-[#191c1e] mb-1">{trip.name}</h3>
-              <div className="flex items-center gap-1 text-sm text-[#424654] mb-1">
-                <span className="material-symbols-outlined text-sm">calendar_today</span>
-                {trip.startDate} – {trip.endDate}
-              </div>
-              <div className="flex items-center gap-4 text-xs text-[#424654] mb-4">
-                <span className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm">location_on</span>
-                  {trip.stops?.length || 0} destinations
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm">account_balance_wallet</span>
-                  ${trip.budget?.toLocaleString()}
-                </span>
-              </div>
-
-              {/* Progress */}
-              <div className="mb-4">
-                <div className="flex justify-between text-xs text-[#424654] mb-1">
-                  <span>Planning Progress</span><span className="font-semibold">{trip.progress}%</span>
+      ) : viewMode === 'grid' ? (
+        /* Grid View */
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredTrips.map((trip) => (
+            <div
+              key={trip.id}
+              className="bg-white rounded-3xl overflow-hidden border border-[#EADBCE] shadow-warm-md hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
+            >
+              <div>
+                <div className="relative h-48 w-full overflow-hidden">
+                  <img
+                    src={trip.coverImage}
+                    alt={trip.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/50 text-white backdrop-blur-md">
+                    {trip.status}
+                  </span>
+                  <p className="absolute bottom-3 left-3 text-white text-xs font-semibold flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm text-[#E8C59A]">calendar_today</span>
+                    {trip.startDate} – {trip.endDate}
+                  </p>
                 </div>
-                <div className="w-full bg-[#eceef0] h-1.5 rounded-full">
-                  <div className="bg-[#0057d9] h-full rounded-full" style={{ width: `${trip.progress}%` }} />
+
+                <div className="p-5">
+                  <h3 className="text-base font-bold text-[#2A180C] mb-1 leading-snug">{trip.name}</h3>
+                  <p className="text-xs text-[#6B5646] line-clamp-2 mb-3">{trip.description}</p>
+                  
+                  <div className="flex items-center gap-1.5 text-xs text-[#8A715F] font-medium">
+                    <span className="material-symbols-outlined text-sm text-[#C88A4B]">location_on</span>
+                    <span>{trip.stops?.length || 0} Destinations: {trip.stops?.join(', ')}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-2 mt-auto pt-2 border-t border-[#c3c6d7]/20">
-                <button
-                  onClick={() => navigate(`/trips/${trip.id}`)}
-                  className="flex-1 bg-[#0057d9] text-white rounded-lg py-2 text-xs font-medium hover:bg-[#0041a7] transition-colors"
-                >
-                  View
-                </button>
+              <div className="p-5 pt-0 border-t border-[#EADBCE]/60 flex items-center justify-between gap-2 mt-2">
                 <button
                   onClick={() => navigate(`/trips/${trip.id}/builder`)}
-                  className="flex-1 bg-[#eceef0] text-[#191c1e] rounded-lg py-2 text-xs font-medium hover:bg-[#e1e2e5] transition-colors"
+                  className="bg-[#FAF7F2] hover:bg-[#F5ECE1] border border-[#D8C6B6] text-[#4A2E18] px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-sm text-[#C88A4B]">edit_calendar</span>
+                  <span>Builder</span>
+                </button>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => navigate(`/trips/${trip.id}`)}
+                    className="bg-[#4A2E18] hover:bg-[#341F0E] text-[#FFFDF9] px-4 py-2 rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => deleteTrip(trip.id)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+                    title="Delete Trip"
+                  >
+                    <span className="material-symbols-outlined text-base">delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* List View */
+        <div className="bg-white rounded-3xl p-6 border border-[#EADBCE] shadow-warm-md divide-y divide-[#EADBCE]">
+          {filteredTrips.map((trip) => (
+            <div key={trip.id} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <img src={trip.coverImage} alt={trip.name} className="w-16 h-16 rounded-2xl object-cover border border-[#EADBCE]" />
+                <div>
+                  <h3 className="text-sm font-bold text-[#2A180C]">{trip.name}</h3>
+                  <p className="text-xs text-[#8A715F]">{trip.startDate} to {trip.endDate} • {trip.stops?.join(', ')}</p>
+                  <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#EADBCE] text-[#C88A4B] uppercase">
+                    {trip.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => navigate(`/trips/${trip.id}/builder`)}
+                  className="px-3.5 py-1.5 bg-[#FAF7F2] text-[#4A2E18] border border-[#D8C6B6] rounded-xl text-xs font-bold"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={() => navigate(`/trips/${trip.id}/share`)}
-                  className="p-2 rounded-lg bg-[#eceef0] text-[#424654] hover:bg-[#e1e2e5] transition-colors"
-                  title="Share"
+                  onClick={() => navigate(`/trips/${trip.id}`)}
+                  className="px-4 py-1.5 bg-[#4A2E18] text-white rounded-xl text-xs font-bold"
                 >
-                  <span className="material-symbols-outlined text-sm">share</span>
-                </button>
-                <button
-                  onClick={() => setConfirmDelete(trip.id)}
-                  className="p-2 rounded-lg bg-[#eceef0] text-[#424654] hover:bg-[#ffdad6] hover:text-[#ba1a1a] transition-colors"
-                  title="Delete"
-                >
-                  <span className="material-symbols-outlined text-sm">delete</span>
+                  View
                 </button>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Delete Confirm Dialog */}
-      {confirmDelete && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-ambient-high">
-            <span className="material-symbols-outlined text-4xl text-[#ba1a1a] mb-3 block">warning</span>
-            <h3 className="text-lg font-semibold text-[#191c1e] mb-2">Delete this trip?</h3>
-            <p className="text-sm text-[#424654] mb-6">This action cannot be undone.</p>
-            <div className="flex gap-3">
-              <button onClick={() => setConfirmDelete(null)} className="flex-1 border border-[#c3c6d7] rounded-xl py-2.5 text-sm font-medium text-[#424654] hover:bg-[#eceef0]">Cancel</button>
-              <button onClick={() => handleDelete(confirmDelete)} className="flex-1 bg-[#ba1a1a] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#93000a]">Delete</button>
-            </div>
-          </div>
+          ))}
         </div>
       )}
     </div>
   );
 }
-

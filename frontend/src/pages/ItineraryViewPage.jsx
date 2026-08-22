@@ -1,8 +1,6 @@
+import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTrips } from '../context/TripContext';
-
-const ICONS = { hotel: 'hotel', restaurant: 'restaurant', museum: 'account_balance', sightseeing: 'photo_camera', adventure: 'hiking', transport: 'train', entertainment: 'theater_comedy', food: 'restaurant', accommodation: 'hotel', culture: 'museum', relax: 'spa' };
-const ACCENT = { hotel: '#624315', accommodation: '#624315', restaurant: '#fe7944', food: '#fe7944', sightseeing: '#0057d9', culture: '#0057d9', adventure: '#2ecc71', relax: '#9b59b6', entertainment: '#e91e63' };
 
 export default function ItineraryViewPage() {
   const { id } = useParams();
@@ -10,111 +8,160 @@ export default function ItineraryViewPage() {
   const { getTripById } = useTrips();
   const trip = getTripById(id);
 
-  if (!trip) return (
-    <div className="flex items-center justify-center h-screen flex-col gap-4">
-      <span className="material-symbols-outlined text-6xl text-[#737686]">luggage</span>
-      <p className="text-[#424654]">Trip not found.</p>
-      <button onClick={() => navigate('/trips')} className="text-[#0041a7] underline text-sm">Back to My Trips</button>
-    </div>
-  );
+  const [viewMode, setViewMode] = useState('timeline'); // 'timeline' | 'list'
+  const [copied, setCopied] = useState(false);
 
-  const totalCost = (trip.days || []).reduce((sum, d) => sum + (d.activities || []).reduce((s, a) => s + (a.cost || 0), 0), 0);
+  if (!trip) {
+    return (
+      <div className="max-w-xl mx-auto py-20 text-center">
+        <h2 className="text-xl font-bold text-[#2A180C]">Trip Not Found</h2>
+        <button onClick={() => navigate('/trips')} className="mt-4 px-4 py-2 bg-[#4A2E18] text-white rounded-xl text-xs font-bold">
+          Back to My Trips
+        </button>
+      </div>
+    );
+  }
+
+  const days = trip.days || [];
+  const totalCost = days.reduce((sum, d) => sum + (d.activities || []).reduce((s, a) => s + (a.cost || 0), 0), 0);
+  const totalActivities = days.reduce((s, d) => s + (d.activities?.length || 0), 0);
+
+  const handleCopyPublicLink = () => {
+    const shareUrl = `${window.location.origin}/trips/${trip.id}/share`;
+    navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 md:px-8 py-10">
-      {/* Hero Header */}
-      <div className="relative rounded-3xl overflow-hidden h-64 mb-8">
+    <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-12 py-8">
+      {/* Hero Banner */}
+      <div className="relative rounded-3xl overflow-hidden h-72 sm:h-80 mb-8 border border-[#EADBCE] shadow-warm-lg">
         <img src={trip.coverImage} alt={trip.name} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-        <div className="absolute bottom-0 left-0 p-8">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="bg-[#fe7944] text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">{trip.status}</span>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+
+        <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 text-white">
+          <div>
+            <span className="px-3 py-1 rounded-full bg-[#D4A373] text-[#2A180C] text-[10px] font-extrabold uppercase tracking-wider mb-2 inline-block">
+              {trip.status}
+            </span>
+            <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight text-[#FFFDF9]">{trip.name}</h1>
+            <p className="text-xs text-[#EADBCE] mt-1 flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm text-[#D4A373]">calendar_today</span>
+              <span>{trip.startDate} – {trip.endDate}</span>
+              <span>•</span>
+              <span>Stops: {trip.stops?.join(', ')}</span>
+            </p>
           </div>
-          <h1 className="text-4xl font-bold text-white">{trip.name}</h1>
-          <p className="text-white/80 mt-1">{trip.startDate} – {trip.endDate} • ${totalCost.toLocaleString()} total cost</p>
-        </div>
-        {/* Action buttons */}
-        <div className="absolute top-4 right-4 flex gap-2">
-          <Link to={`/trips/${trip.id}/builder`} className="bg-white/20 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs font-medium border border-white/30 hover:bg-white/30 transition-colors flex items-center gap-1">
-            <span className="material-symbols-outlined text-sm">edit</span>Edit
-          </Link>
-          <Link to={`/trips/${trip.id}/share`} className="bg-white/20 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs font-medium border border-white/30 hover:bg-white/30 transition-colors flex items-center gap-1">
-            <span className="material-symbols-outlined text-sm">share</span>Share
-          </Link>
+
+          <div className="flex gap-2.5">
+            <button
+              onClick={handleCopyPublicLink}
+              className="bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-base">{copied ? 'done' : 'share'}</span>
+              <span>{copied ? 'Link Copied!' : 'Share Itinerary'}</span>
+            </button>
+            <button
+              onClick={() => navigate(`/trips/${trip.id}/builder`)}
+              className="bg-[#D4A373] hover:bg-[#C88A4B] text-[#2A180C] px-5 py-2 rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-base">edit</span>
+              <span>Edit Itinerary</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Trip Stats */}
+      {/* Summary KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Total Days', value: trip.days?.length || 0, icon: 'calendar_today' },
-          { label: 'Destinations', value: trip.stops?.length || 0, icon: 'location_on' },
-          { label: 'Activities', value: (trip.days || []).reduce((s, d) => s + (d.activities?.length || 0), 0), icon: 'attractions' },
-          { label: 'Budget', value: `$${trip.budget?.toLocaleString()}`, icon: 'account_balance_wallet' },
+          { label: 'Total Duration', value: `${days.length} Days`, icon: 'calendar_month' },
+          { label: 'Stops & Destinations', value: `${trip.stops?.length || 0} Cities`, icon: 'location_on' },
+          { label: 'Scheduled Activities', value: `${totalActivities} Items`, icon: 'attractions' },
+          { label: 'Estimated Expenses', value: `$${totalCost.toLocaleString()}`, icon: 'payments' },
         ].map(({ label, value, icon }) => (
-          <div key={label} className="bg-white rounded-2xl p-4 shadow-ambient-low border border-[#c3c6d7]/20 text-center">
-            <span className="material-symbols-outlined text-[#0041a7] text-2xl">{icon}</span>
-            <p className="text-2xl font-bold text-[#191c1e] mt-1">{value}</p>
-            <p className="text-xs text-[#424654] mt-0.5">{label}</p>
+          <div key={label} className="bg-white rounded-3xl p-5 border border-[#EADBCE] shadow-warm-md text-center">
+            <span className="material-symbols-outlined text-[#4A2E18] text-2xl">{icon}</span>
+            <p className="text-xl font-bold text-[#2A180C] mt-1">{value}</p>
+            <p className="text-xs text-[#8A715F]">{label}</p>
           </div>
         ))}
       </div>
 
-      {/* Day-by-Day Itinerary */}
-      {(!trip.days || trip.days.length === 0) ? (
-        <div className="bg-white rounded-2xl border-2 border-dashed border-[#c3c6d7]/50 p-16 text-center">
-          <span className="material-symbols-outlined text-5xl text-[#737686] mb-3 block">event_note</span>
-          <p className="font-semibold text-[#191c1e] text-lg mb-2">No itinerary yet</p>
-          <Link to={`/trips/${trip.id}/builder`} className="inline-flex items-center gap-2 bg-[#0057d9] text-white rounded-full px-5 py-2.5 text-sm font-medium hover:bg-[#0041a7] transition-colors mt-2">
-            <span className="material-symbols-outlined text-lg">add</span>Start Building Itinerary
-          </Link>
+      {/* View Mode Toggle */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-[#2A180C]">Day-by-Day Journey Plan</h2>
+        <div className="flex bg-white p-1 rounded-2xl border border-[#EADBCE]">
+          <button
+            onClick={() => setViewMode('timeline')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              viewMode === 'timeline' ? 'bg-[#4A2E18] text-[#FFFDF9]' : 'text-[#6B5646]'
+            }`}
+          >
+            Timeline
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              viewMode === 'list' ? 'bg-[#4A2E18] text-[#FFFDF9]' : 'text-[#6B5646]'
+            }`}
+          >
+            Grouped List
+          </button>
+        </div>
+      </div>
+
+      {/* Day-by-Day Cards */}
+      {days.length === 0 ? (
+        <div className="bg-white rounded-3xl p-12 text-center border border-dashed border-[#D8C6B6]">
+          <span className="material-symbols-outlined text-4xl text-[#8A715F] mb-2">calendar_today</span>
+          <p className="text-sm font-bold text-[#2A180C]">No itinerary days added yet.</p>
+          <button
+            onClick={() => navigate(`/trips/${trip.id}/builder`)}
+            className="mt-3 px-4 py-2 bg-[#4A2E18] text-white rounded-xl text-xs font-bold"
+          >
+            Open Itinerary Builder
+          </button>
         </div>
       ) : (
-        <div className="space-y-8">
-          {trip.days.map((dayBlock, i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 shadow-ambient-md border border-[#c3c6d7]/20">
-              {/* Day Header */}
-              <div className="flex items-center gap-4 mb-5 pb-4 border-b border-[#c3c6d7]/30">
-                <div className="w-14 h-14 rounded-2xl bg-[#0057d9] text-white flex flex-col items-center justify-center shadow-ambient-md">
-                  <span className="text-[10px] font-semibold uppercase leading-tight opacity-80">Day</span>
-                  <span className="text-xl font-bold leading-tight">{dayBlock.day}</span>
+        <div className="space-y-6">
+          {days.map((dayBlock) => (
+            <div key={dayBlock.day} className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EADBCE] shadow-warm-md">
+              <div className="flex items-center gap-4 pb-4 mb-5 border-b border-[#EADBCE]">
+                <div className="w-12 h-12 rounded-2xl bg-[#4A2E18] text-[#FFFDF9] flex flex-col items-center justify-center font-bold">
+                  <span className="text-[9px] uppercase text-[#E8C59A]">Day</span>
+                  <span className="text-base leading-none">{dayBlock.day}</span>
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-[#191c1e]">{dayBlock.city || `Day ${dayBlock.day}`}</h2>
-                  <p className="text-sm text-[#424654]">{dayBlock.date || ''} • {dayBlock.activities?.length || 0} activities</p>
+                  <h3 className="text-lg font-bold text-[#2A180C]">{dayBlock.city || `Day ${dayBlock.day}`}</h3>
+                  <p className="text-xs text-[#8A715F]">{dayBlock.activities?.length || 0} activities scheduled</p>
                 </div>
               </div>
 
-              {/* Activities */}
               {(!dayBlock.activities || dayBlock.activities.length === 0) ? (
-                <p className="text-center text-sm text-[#424654] py-4">No activities planned for this day.</p>
+                <p className="text-xs text-[#8A715F] py-2">No activities for this day.</p>
               ) : (
                 <div className="space-y-3">
-                  {dayBlock.activities.map((act, ai) => {
-                    const iconName = ICONS[act.category] || ICONS[act.icon] || 'star';
-                    const accentColor = ACCENT[act.category] || '#0057d9';
-                    return (
-                      <div key={act.id} className="flex gap-4 items-start relative">
-                        {/* Timeline dot + line */}
-                        <div className="flex flex-col items-center shrink-0">
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${accentColor}20`, color: accentColor }}>
-                            <span className="material-symbols-outlined text-lg">{iconName}</span>
-                          </div>
-                          {ai < dayBlock.activities.length - 1 && <div className="w-0.5 h-4 bg-[#c3c6d7]/50 mt-1" />}
-                        </div>
-                        <div className="flex-1 pb-2">
-                          <div className="flex justify-between items-start">
-                            <h3 className="text-base font-semibold text-[#191c1e]">{act.name}</h3>
-                            <span className="text-sm text-[#424654] font-medium ml-2">{act.time}</span>
-                          </div>
-                          {act.notes && <p className="text-sm text-[#424654] mt-0.5">{act.notes}</p>}
-                          {act.cost > 0 && (
-                            <span className="text-xs text-[#424654] bg-[#eceef0] px-2 py-0.5 rounded mt-1.5 inline-block">${act.cost}</span>
-                          )}
+                  {dayBlock.activities.map((act) => (
+                    <div
+                      key={act.id}
+                      className="flex items-center justify-between p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EADBCE]/80"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-[#C88A4B] bg-white border border-[#EADBCE] px-2 py-1 rounded-lg">
+                          {act.time}
+                        </span>
+                        <div>
+                          <h4 className="text-xs font-bold text-[#2A180C]">{act.name}</h4>
+                          {act.notes && <p className="text-[11px] text-[#6B5646]">{act.notes}</p>}
                         </div>
                       </div>
-                    );
-                  })}
+                      <span className="text-xs font-bold text-[#4A2E18]">
+                        {act.cost > 0 ? `$${act.cost}` : 'Free'}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -124,4 +171,3 @@ export default function ItineraryViewPage() {
     </div>
   );
 }
-

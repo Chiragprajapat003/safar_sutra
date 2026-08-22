@@ -14,9 +14,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = (email, password) => {
-    // Mock: accept any non-empty credentials
     if (email && password) {
-      const authedUser = { ...mockUser, email };
+      const authedUser = { ...mockUser, email, authProvider: 'email' };
       setUser(authedUser);
       localStorage.setItem('gt_user', JSON.stringify(authedUser));
       return true;
@@ -26,12 +25,28 @@ export function AuthProvider({ children }) {
 
   const signup = (name, email, password) => {
     if (name && email && password) {
-      const newUser = { ...mockUser, name, email };
+      const newUser = { ...mockUser, name, email, authProvider: 'email' };
       setUser(newUser);
       localStorage.setItem('gt_user', JSON.stringify(newUser));
       return true;
     }
     return false;
+  };
+
+  const loginWithGoogle = async (googleData = null) => {
+    // Simulates instant or custom Google OAuth authentication
+    const googleUser = googleData || {
+      id: 101,
+      name: 'Alex Johnson',
+      email: 'alex.traveler@gmail.com',
+      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDlBy-yCwRN_SXsMlaM4lZx1TGx3g1_o33z6eONLlrWYTDYJyZqGv7sAO7Ydu2yUwahMv9psKT3tkUwi10kwrtdZOrURcKgetzQxTTALFhqAGPdbcVl69LqluPxtMSt8tOlvS_2tRE7nrmSSW_kKk1sv49CIkbis5poNzgsw2iAS4xpTmmHi6WqZthbptv45LRJhdU37KbYw2_94_idgzvFyqmSW3IXnizwXC-A7gBbt0HNFATojzkR',
+      countriesVisited: 14,
+      tripsPlanned: 4,
+      authProvider: 'google',
+    };
+    setUser(googleUser);
+    localStorage.setItem('gt_user', JSON.stringify(googleUser));
+    return true;
   };
 
   const logout = () => {
@@ -40,7 +55,7 @@ export function AuthProvider({ children }) {
   };
 
   const updateUser = (updates) => {
-    setUser(prev => {
+    setUser((prev) => {
       if (!prev) return null;
       const next = { ...prev, ...updates };
       localStorage.setItem('gt_user', JSON.stringify(next));
@@ -49,11 +64,10 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, signup, loading, updateUser }}>
+    <AuthContext.Provider value={{ user, login, logout, signup, loginWithGoogle, loading, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export const useAuth = () => useContext(AuthContext);
-

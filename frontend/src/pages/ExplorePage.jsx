@@ -1,165 +1,257 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { mockDestinations } from '../services/mockData';
-import { mockActivities } from '../services/mockData';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { mockDestinations, mockActivities } from '../services/mockData';
+import { useTrips } from '../context/TripContext';
 
-const REGIONS = ['All', 'Europe', 'Asia', 'Southeast Asia', 'Africa', 'North America'];
-const PRICE_LEVELS = ['All', '$', '$$', '$$$', '$$$$'];
-const CATEGORIES = ['All', 'Beach', 'Adventure', 'Culture', 'City'];
+const REGIONS = ['All', 'North India', 'North East India', 'Islands', 'International'];
+const ACTIVITY_TYPES = ['All', 'Spiritual', 'Heritage', 'Nature', 'Adventure', 'Food & Dining', 'Culture'];
 
 export default function ExplorePage() {
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
   const navigate = useNavigate();
-  const [search, setSearch] = useState('');
-  const [region, setRegion] = useState('All');
-  const [price, setPrice] = useState('All');
-  const [category, setCategory] = useState('All');
-  const [tab, setTab] = useState('destinations'); // 'destinations' | 'activities'
+  const { trips } = useTrips();
 
-  const filteredDests = mockDestinations.filter(d => {
-    if (search && !d.name.toLowerCase().includes(search.toLowerCase()) && !d.country.toLowerCase().includes(search.toLowerCase())) return false;
-    if (region !== 'All' && d.region !== region) return false;
-    if (price !== 'All' && d.priceLevel !== price) return false;
-    if (category !== 'All' && d.category !== category) return false;
-    return true;
+  const [activeTab, setActiveTab] = useState('cities'); // 'cities' | 'activities'
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [selectedRegion, setSelectedRegion] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCostIndex, setSelectedCostIndex] = useState('All');
+  const [addedActivity, setAddedActivity] = useState(null);
+
+  // Filter Cities
+  const filteredCities = mockDestinations.filter((dest) => {
+    const matchQuery =
+      dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      dest.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      dest.state.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchRegion = selectedRegion === 'All' || dest.region === selectedRegion;
+    const matchCategory = selectedCategory === 'All' || dest.category === selectedCategory;
+    const matchCost = selectedCostIndex === 'All' || dest.costIndex === selectedCostIndex;
+    return matchQuery && matchRegion && matchCategory && matchCost;
   });
 
-  const filteredActs = mockActivities.filter(a => {
-    if (search && !a.name.toLowerCase().includes(search.toLowerCase()) && !a.category.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
+  // Filter Activities
+  const filteredActivities = mockActivities.filter((act) => {
+    const matchQuery =
+      act.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      act.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      act.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchType = selectedCategory === 'All' || act.category === selectedCategory;
+    return matchQuery && matchType;
   });
+
+  const handleAddToTrip = (item, type = 'city') => {
+    setAddedActivity(`Added ${item.name} to trip wishlist!`);
+    setTimeout(() => setAddedActivity(null), 2500);
+  };
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 md:px-16 py-10">
-      {/* Header */}
+    <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-12 py-8">
+      {/* Toast alert when item is added */}
+      {addedActivity && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#4A2E18] text-[#FFFDF9] px-5 py-3 rounded-2xl shadow-warm-lg flex items-center gap-2 text-xs font-semibold animate-slideUp">
+          <span className="material-symbols-outlined text-[#E8C59A] text-base">check_circle</span>
+          <span>{addedActivity}</span>
+        </div>
+      )}
+
+      {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-[#191c1e] mb-1">Explore</h1>
-        <p className="text-base text-[#424654]">Discover your next destination or activity.</p>
+        <h1 className="text-3xl font-extrabold text-[#2A180C] tracking-tight">Explore & Discover</h1>
+        <p className="text-sm text-[#6B5646] mt-1">
+          Search holy cities, heritage wonders, and authentic travel activities across India and the world.
+        </p>
       </div>
 
-      {/* Search bar */}
-      <div className="relative mb-6">
-        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#737686] text-xl">search</span>
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search destinations, countries, activities..."
-          className="w-full pl-12 pr-4 py-3.5 bg-white border border-[#c3c6d7] rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-[#0041a7]/20 focus:border-[#0041a7] transition-all shadow-ambient-low"
-        />
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-2 mb-6">
-        {[{ key: 'destinations', label: 'Destinations', icon: 'location_on' }, { key: 'activities', label: 'Activities', icon: 'attractions' }].map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)} className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${tab === t.key ? 'bg-[#0057d9] text-white' : 'bg-white text-[#424654] border border-[#c3c6d7]/50 hover:bg-[#eceef0]'}`}>
-            <span className="material-symbols-outlined text-base">{t.icon}</span>{t.label}
+      {/* Main Mode Toggle: Cities vs Activities */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-white p-3 rounded-3xl border border-[#EADBCE] shadow-warm-xs">
+        <div className="flex bg-[#FAF7F2] p-1.5 rounded-2xl border border-[#EADBCE]">
+          <button
+            onClick={() => setActiveTab('cities')}
+            className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+              activeTab === 'cities'
+                ? 'bg-[#4A2E18] text-[#FFFDF9] shadow-sm'
+                : 'text-[#6B5646] hover:text-[#4A2E18]'
+            }`}
+          >
+            <span className="material-symbols-outlined text-base">location_city</span>
+            <span>City & Destination Search</span>
           </button>
-        ))}
+          <button
+            onClick={() => setActiveTab('activities')}
+            className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+              activeTab === 'activities'
+                ? 'bg-[#4A2E18] text-[#FFFDF9] shadow-sm'
+                : 'text-[#6B5646] hover:text-[#4A2E18]'
+            }`}
+          >
+            <span className="material-symbols-outlined text-base">attractions</span>
+            <span>Activity & Experience Search</span>
+          </button>
+        </div>
+
+        {/* Global Search Bar */}
+        <div className="relative w-full sm:w-80">
+          <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A715F] text-lg">
+            search
+          </span>
+          <input
+            type="text"
+            placeholder={activeTab === 'cities' ? 'Search cities, state, region...' : 'Search Aarti, safaris, tours...'}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-[#FAF7F2] border border-[#D8C6B6] rounded-2xl text-xs text-[#2A180C] placeholder:text-[#9E8777] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4A2E18]/15 focus:border-[#4A2E18] transition-all"
+          />
+        </div>
       </div>
 
-      {/* Destination Filters */}
-      {tab === 'destinations' && (
-        <div className="flex flex-wrap gap-3 mb-6">
-          <div className="flex items-center gap-2 bg-white border border-[#c3c6d7]/50 rounded-xl px-3 py-2">
-            <span className="text-xs font-medium text-[#424654]">Region:</span>
-            <select value={region} onChange={e => setRegion(e.target.value)} className="text-xs font-medium text-[#191c1e] bg-transparent focus:outline-none cursor-pointer">
-              {REGIONS.map(r => <option key={r}>{r}</option>)}
-            </select>
+      {/* ── CITY SEARCH TAB ── */}
+      {activeTab === 'cities' && (
+        <div>
+          {/* Filters Bar */}
+          <div className="flex flex-wrap gap-2.5 mb-6">
+            <span className="text-xs font-bold text-[#8A715F] flex items-center gap-1 mr-2">
+              <span className="material-symbols-outlined text-sm">filter_list</span> Region:
+            </span>
+            {REGIONS.map((region) => (
+              <button
+                key={region}
+                onClick={() => setSelectedRegion(region)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  selectedRegion === region
+                    ? 'bg-[#4A2E18] text-[#FFFDF9] shadow-xs'
+                    : 'bg-white text-[#6B5646] border border-[#EADBCE] hover:border-[#4A2E18]'
+                }`}
+              >
+                {region}
+              </button>
+            ))}
           </div>
-          <div className="flex items-center gap-2 bg-white border border-[#c3c6d7]/50 rounded-xl px-3 py-2">
-            <span className="text-xs font-medium text-[#424654]">Price:</span>
-            <select value={price} onChange={e => setPrice(e.target.value)} className="text-xs font-medium text-[#191c1e] bg-transparent focus:outline-none cursor-pointer">
-              {PRICE_LEVELS.map(p => <option key={p}>{p}</option>)}
-            </select>
-          </div>
-          <div className="flex items-center gap-2 bg-white border border-[#c3c6d7]/50 rounded-xl px-3 py-2">
-            <span className="text-xs font-medium text-[#424654]">Category:</span>
-            <select value={category} onChange={e => setCategory(e.target.value)} className="text-xs font-medium text-[#191c1e] bg-transparent focus:outline-none cursor-pointer">
-              {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-            </select>
-          </div>
-        </div>
-      )}
 
-      {/* Results count */}
-      <p className="text-sm text-[#424654] mb-5">
-        {tab === 'destinations' ? `${filteredDests.length} destinations found` : `${filteredActs.length} activities found`}
-      </p>
-
-      {/* Destination Grid */}
-      {tab === 'destinations' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredDests.map(dest => (
-            <div key={dest.id} className="bg-white rounded-2xl overflow-hidden shadow-ambient-md border border-[#c3c6d7]/20 group hover:-translate-y-1 transition-transform duration-300 cursor-pointer flex flex-col">
-              <div className="relative h-52">
-                <img src={dest.image} alt={dest.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                {dest.badge && (
-                  <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-semibold shadow-sm ${dest.badgeVariant === 'secondary' ? 'bg-[#fe7944]/90 text-white' : 'bg-white/90 text-[#191c1e]'}`}>
-                    {dest.badge}
+          {/* City Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredCities.map((dest) => (
+              <div
+                key={dest.id}
+                className="bg-white rounded-3xl p-4 border border-[#EADBCE] shadow-warm-md hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="relative w-full h-48 rounded-2xl overflow-hidden mb-3.5">
+                    <img src={dest.image} alt={dest.name} className="w-full h-full object-cover" />
+                    <span className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[#4A2E18]/85 text-[#E8C59A] backdrop-blur-xs">
+                      {dest.badge}
+                    </span>
+                    <span className="absolute bottom-2.5 right-2.5 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded text-[11px] font-bold text-white">
+                      Popularity: {dest.popularity}%
+                    </span>
                   </div>
-                )}
-                <div className="absolute bottom-3 right-3 bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg text-xs font-bold text-white border border-white/30">
-                  {dest.priceLevel}
+
+                  <div className="flex justify-between items-start mb-1">
+                    <div>
+                      <h3 className="text-base font-bold text-[#2A180C]">{dest.name}</h3>
+                      <p className="text-xs text-[#8A715F] font-medium">{dest.state}, {dest.country}</p>
+                    </div>
+                    <span className="text-[10px] font-bold text-[#4A2E18] bg-[#FAF7F2] border border-[#EADBCE] px-2 py-0.5 rounded-md">
+                      {dest.costIndex}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-[#6B5646] line-clamp-2 my-2">{dest.description}</p>
                 </div>
-              </div>
-              <div className="p-5 flex flex-col flex-1">
-                <h3 className="text-lg font-semibold text-[#191c1e] mb-1">{dest.name}</h3>
-                <div className="flex items-center gap-3 text-xs text-[#424654] mb-1">
-                  <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">flag</span>{dest.country}</span>
-                  <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">public</span>{dest.region}</span>
-                </div>
-                <p className="text-xs text-[#424654] flex items-center gap-1 mb-4">
-                  <span className="material-symbols-outlined text-sm">wb_sunny</span>Best: {dest.bestTime}
-                </p>
-                <div className="flex gap-2 mt-auto">
+
+                <div className="pt-3 border-t border-[#EADBCE]/60 flex items-center justify-between gap-2 mt-2">
+                  <div className="text-[11px] text-[#8A715F]">
+                    <span className="font-semibold text-[#4A2E18]">Best: {dest.bestTime}</span>
+                  </div>
                   <button
-                    onClick={() => navigate('/trips')}
-                    className="flex-1 bg-[#0057d9] text-white rounded-xl py-2 text-xs font-medium hover:bg-[#0041a7] transition-colors flex items-center justify-center gap-1"
+                    onClick={() => handleAddToTrip(dest, 'city')}
+                    className="bg-[#4A2E18] hover:bg-[#341F0E] text-[#FFFDF9] px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-sm">add</span>Add to Trip
-                  </button>
-                  <button className="px-3 py-2 bg-[#eceef0] text-[#424654] rounded-xl text-xs font-medium hover:bg-[#e1e2e5] transition-colors">
-                    <span className="material-symbols-outlined text-sm">bookmark_border</span>
+                    <span className="material-symbols-outlined text-sm text-[#E8C59A]">add</span>
+                    <span>Add to Trip</span>
                   </button>
                 </div>
               </div>
-            </div>
-          ))}
-          {filteredDests.length === 0 && (
-            <div className="col-span-full text-center py-16 text-[#424654]">
-              <span className="material-symbols-outlined text-5xl block mb-3">search_off</span>
-              No destinations match your filters.
-            </div>
-          )}
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Activities Grid */}
-      {tab === 'activities' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {filteredActs.map(act => (
-            <div key={act.id} className="bg-white rounded-2xl overflow-hidden shadow-ambient-md border border-[#c3c6d7]/20 group hover:-translate-y-1 transition-transform duration-300 cursor-pointer flex flex-col">
-              <div className="h-36 overflow-hidden">
-                <img src={act.image} alt={act.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              </div>
-              <div className="p-4 flex flex-col flex-1">
-                <span className="text-xs font-semibold text-[#fe7944] capitalize mb-1">{act.category}</span>
-                <h3 className="text-sm font-semibold text-[#191c1e] mb-1">{act.name}</h3>
-                <p className="text-xs text-[#424654] line-clamp-2 mb-3">{act.description}</p>
-                <div className="flex justify-between items-center mt-auto">
-                  <div className="text-xs text-[#424654]">
-                    <span className="font-semibold text-[#191c1e]">${act.cost}</span> · {act.duration}min
+      {/* ── ACTIVITY SEARCH TAB ── */}
+      {activeTab === 'activities' && (
+        <div>
+          {/* Category Filter Pills */}
+          <div className="flex flex-wrap gap-2.5 mb-6">
+            <span className="text-xs font-bold text-[#8A715F] flex items-center gap-1 mr-2">
+              <span className="material-symbols-outlined text-sm">category</span> Category:
+            </span>
+            {ACTIVITY_TYPES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  selectedCategory === cat
+                    ? 'bg-[#4A2E18] text-[#FFFDF9] shadow-xs'
+                    : 'bg-white text-[#6B5646] border border-[#EADBCE] hover:border-[#4A2E18]'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Activity Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredActivities.map((act) => (
+              <div
+                key={act.id}
+                className="bg-white rounded-3xl p-5 border border-[#EADBCE] shadow-warm-md hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+              >
+                <div className="flex gap-4 items-start mb-3">
+                  <img
+                    src={act.image}
+                    alt={act.name}
+                    className="w-20 h-20 rounded-2xl object-cover border border-[#EADBCE] shrink-0"
+                  />
+                  <div className="flex-1">
+                    <span className="inline-block px-2 py-0.5 bg-[#FAF7F2] border border-[#EADBCE] text-[#C88A4B] text-[10px] font-bold rounded-md mb-1">
+                      {act.category}
+                    </span>
+                    <h3 className="text-sm font-bold text-[#2A180C] leading-snug">{act.name}</h3>
+                    <p className="text-xs text-[#8A715F] flex items-center gap-1 mt-0.5">
+                      <span className="material-symbols-outlined text-xs">location_on</span>
+                      <span>{act.city}</span>
+                    </p>
                   </div>
-                  <button onClick={() => navigate('/trips')} className="bg-[#0057d9] text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-[#0041a7] transition-colors">
-                    Add
+                </div>
+
+                <p className="text-xs text-[#6B5646] line-clamp-2 mb-4">{act.description}</p>
+
+                <div className="pt-3 border-t border-[#EADBCE]/60 flex items-center justify-between">
+                  <div className="flex items-center gap-3 text-xs font-semibold text-[#5A4536]">
+                    <span className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-sm text-[#C88A4B]">schedule</span>
+                      {act.duration} min
+                    </span>
+                    <span className="text-[#4A2E18] font-bold">
+                      {act.cost === 0 ? 'Free' : `$${act.cost}`}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => handleAddToTrip(act, 'activity')}
+                    className="bg-[#4A2E18] hover:bg-[#341F0E] text-[#FFFDF9] px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1 cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-sm text-[#E8C59A]">add_task</span>
+                    <span>Add to Itinerary</span>
                   </button>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>
   );
 }
-

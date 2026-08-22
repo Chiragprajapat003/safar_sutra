@@ -23,9 +23,12 @@ export default function SideNavBar({ onPlanTrip }) {
   return (
     <nav className="hidden lg:flex flex-col h-screen fixed left-0 top-0 py-6 border-r border-[#c3c6d7]/30 bg-[#f2f4f6] w-64 z-40">
       {/* Brand */}
-      <div className="px-6 mb-8">
-        <h1 className="text-2xl font-black text-[#0041a7]">GlobeTrotter</h1>
-        <p className="text-sm text-[#424654] mt-1">Travel Planner</p>
+      <div className="px-6 mb-8 flex items-center gap-2.5">
+        <span className="material-symbols-outlined text-3xl text-[#C88A4B]">temple_hindu</span>
+        <div>
+          <h1 className="text-xl font-black text-[#4A2E18]">Safar-sutra</h1>
+          <p className="text-xs text-[#8A715F] font-medium">Travel Planner</p>
+        </div>
       </div>
 
       {/* Plan New Trip CTA */}
