@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafarSutra - Public Itinerary Preview</title>
+    <!-- Bootstrap 5 CSS (Odoo 17 Default) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 5 CSS (Odoo 17 Default) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- Compiled SafarSutra Theme SCSS -->
+    <link rel="stylesheet" href="output.css">
+    <style>
+        /* Force body alignment with Odoo website styles in dark mode */
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body class="ss-font-body">
+
+    <!-- Mock Odoo 17 Navbar with SafarSutra Style -->
+    <nav class="navbar o_navbar navbar-expand-lg navbar-dark py-3">
+        <div class="container">
+            <a class="navbar-brand ss-font-heading" href="#">🗺️ SafarSutra</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="preview_dashboard.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="preview_public_itinerary.html">Public Itinerary Preview</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-white-50"><i class="fa fa-globe me-1"></i> Public Access</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Public Shared Page container (matches QWeb structure) -->
+    <div class="ss-itinerary-page">
+        <div class="container py-5">
+            <!-- Main Glassmorphism Card -->
+            <div class="ss-glass-card shadow-lg">
+                
+                <!-- Header with Trip Name & Dates -->
+                <div class="row mb-5">
+                    <div class="col-12 text-center text-md-start">
+                        <span class="text-uppercase tracking-wider font-weight-bold" style="color: #c87a5a; letter-spacing: 2px;">Public Shared Journey</span>
+                        <h1 class="ss-itinerary-title ss-font-heading mt-2">Himalayan Mystique</h1>
+                        <div class="ss-itinerary-dates ss-font-body justify-content-center justify-content-md-start">
+                            <i class="fa fa-calendar-alt"></i>
+                            <span>2026-09-10 to 2026-09-18</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Stops Section -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h3 class="ss-font-heading mb-4" style="color: #d4af37; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 10px;">
+                            📍 Route Timeline
+                        </h3>
+                        
+                        <div class="ss-timeline">
+                            <!-- Stop 1 -->
+                            <div class="ss-timeline-stop">
+                                <div class="ss-stop-card">
+                                    <div class="d-flex justify-content-between align-items-start flex-wrap">
+                                        <div>
+                                            <h4 class="ss-stop-title ss-font-heading">Manali, India</h4>
+                                            <div class="ss-stop-dates">
+                                                <i class="fa fa-clock me-1"></i> 2026-09-10 – 2026-09-12
+                                            </div>
+                                        </div>
+                                        <span class="badge bg-dark text-light px-3 py-2 border border-secondary">
+                                            Stop 1
+                                        </span>
+                                    </div>
+
+                                    <!-- Activities in Stop 1 -->
+                                    <div class="ss-activity-list mt-3">
+                                        <!-- Activity 1 -->
+                                        <div class="ss-activity-item">
+                                            <div class="ss-activity-info">
+                                                <span class="fs-5">🧗</span>
+                                                <div>
+                                                    <span class="ss-activity-name d-block">Solang Valley Paragliding</span>
+                                                    <span class="ss-activity-duration">
+                                                        <i class="fa fa-hourglass-half me-1"></i> 180 mins
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="ss-badge ss-badge-adventure">adventure</span>
+                                                <span class="ss-activity-cost">₹3,500</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Activity 2 -->
+                                        <div class="ss-activity-item">
+                                            <div class="ss-activity-info">
+                                                <span class="fs-5">🏛️</span>
+                                                <div>
+                                                    <span class="ss-activity-name d-block">Hadimba Temple Visit</span>
+                                                    <span class="ss-activity-duration">
+                                                        <i class="fa fa-hourglass-half me-1"></i> 90 mins
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="ss-badge ss-badge-sightseeing">sightseeing</span>
+                                                <span class="ss-activity-cost">₹0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stop 2 -->
+                            <div class="ss-timeline-stop">
+                                <div class="ss-stop-card">
+                                    <div class="d-flex justify-content-between align-items-start flex-wrap">
+                                        <div>
+                                            <h4 class="ss-stop-title ss-font-heading">Jispa, India</h4>
+                                            <div class="ss-stop-dates">
+                                                <i class="fa fa-clock me-1"></i> 2026-09-13 – 2026-09-14
+                                            </div>
+                                        </div>
+                                        <span class="badge bg-dark text-light px-3 py-2 border border-secondary">
+                                            Stop 2
+                                        </span>
+                                    </div>
+
+                                    <!-- Activities in Stop 2 -->
+                                    <div class="ss-activity-list mt-3">
+                                        <div class="ss-activity-item">
+                                            <div class="ss-activity-info">
+                                                <span class="fs-5">🌿</span>
+                                                <div>
+                                                    <span class="ss-activity-name d-block">Riverside Camping</span>
+                                                    <span class="ss-activity-duration">
+                                                        <i class="fa fa-hourglass-half me-1"></i> 720 mins
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="ss-badge ss-badge-relax">relax</span>
+                                                <span class="ss-activity-cost">₹2,500</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stop 3 -->
+                            <div class="ss-timeline-stop">
+                                <div class="ss-stop-card">
+                                    <div class="d-flex justify-content-between align-items-start flex-wrap">
+                                        <div>
+                                            <h4 class="ss-stop-title ss-font-heading">Leh, India</h4>
+                                            <div class="ss-stop-dates">
+                                                <i class="fa fa-clock me-1"></i> 2026-09-15 – 2026-09-18
+                                            </div>
+                                        </div>
+                                        <span class="badge bg-dark text-light px-3 py-2 border border-secondary">
+                                            Stop 3
+                                        </span>
+                                    </div>
+
+                                    <!-- Activities in Stop 3 -->
+                                    <div class="ss-activity-list mt-3">
+                                        <!-- Activity 1 -->
+                                        <div class="ss-activity-item">
+                                            <div class="ss-activity-info">
+                                                <span class="fs-5">🏛️</span>
+                                                <div>
+                                                    <span class="ss-activity-name d-block">Pangong Lake Excursion</span>
+                                                    <span class="ss-activity-duration">
+                                                        <i class="fa fa-hourglass-half me-1"></i> 480 mins
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="ss-badge ss-badge-sightseeing">sightseeing</span>
+                                                <span class="ss-activity-cost">₹5,000</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Activity 2 -->
+                                        <div class="ss-activity-item">
+                                            <div class="ss-activity-info">
+                                                <span class="fs-5">🍳</span>
+                                                <div>
+                                                    <span class="ss-activity-name d-block">Ladakhi Food Trail</span>
+                                                    <span class="ss-activity-duration">
+                                                        <i class="fa fa-hourglass-half me-1"></i> 120 mins
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="ss-badge ss-badge-food">food</span>
+                                                <span class="ss-activity-cost">₹1,200</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Section (Budget & Sharing details) -->
+                    <div class="col-lg-4 mt-5 mt-lg-0">
+                        <div class="p-4 rounded" style="background: rgba(15, 12, 31, 0.4); border: 1px solid rgba(255,255,255,0.05);">
+                            <h3 class="ss-font-heading mb-4" style="color: #d4af37;">
+                                💼 Budget Allocation
+                            </h3>
+                            
+                            <!-- Budget Progress Ring -->
+                            <div class="ss-budget-container">
+                                <div class="ss-budget-ring" style="background: conic-gradient(#d4af37 80%, rgba(255, 255, 255, 0.1) 0);">
+                                    <div class="ss-budget-ring-inner">
+                                        80%
+                                    </div>
+                                </div>
+                                <div class="ss-budget-details">
+                                    <div class="ss-budget-label">Total Allocated Budget</div>
+                                    <div class="ss-budget-value">₹75,000</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Share Box Info -->
+                            <div class="mt-4 p-3 rounded" style="background: rgba(200, 122, 90, 0.1); border: 1px solid rgba(200, 122, 90, 0.2);">
+                                <h5 class="ss-font-heading text-white mb-2" style="font-size: 1.1rem;">🌍 Invite Others</h5>
+                                <p class="text-white-50 ss-font-body mb-3" style="font-size: 0.85rem;">
+                                    Copy the URL in your browser address bar to share this premium itinerary with friends, family, or the community.
+                                </p>
+                                <button class="btn btn-sm btn-outline-warning w-100 ss-font-body" onclick="alert('Link copied to clipboard! (Simulated)');">
+                                    <i class="fa fa-copy me-1"></i> Copy Share Link
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white-50 text-center py-4 border-top border-secondary" style="background-color: #0f0c1f !important;">
+        <div class="container">
+            <p class="mb-0">© 2026 SafarSutra. Created for Odoo Hackathon. Earth & Gold Theme.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
