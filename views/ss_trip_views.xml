@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==========================================
+         ACTION WINDOWS (ss.trip)
+         ========================================== -->
+
+    <!-- Action for Sub-menu 1: "My Trips" 
+         Opens Kanban, Tree (List), and Form views, default ordering by start_date -->
+    <record id="action_safar_sutra_my_trips" model="ir.actions.act_window">
+        <field name="name">My Trips</field>
+        <field name="res_model">ss.trip</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Begin your journey with SafarSutra!
+            </p>
+            <p>
+                Click 'New' or 'Plan New Trip' to start building your personalized itinerary,
+                track stops, schedule activities, and manage your budget.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action for Sub-menu 2: "Plan New Trip"
+         Forces the UI to open directly into form view in Edit/Create mode -->
+    <record id="action_safar_sutra_plan_new" model="ir.actions.act_window">
+        <field name="name">Plan New Trip</field>
+        <field name="res_model">ss.trip</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'form_view_initial_mode': 'edit'}</field>
+    </record>
+
+
+    <!-- ==========================================
+         TREE / LIST VIEW (ss.trip)
+         ========================================== -->
+    <record id="view_ss_trip_tree" model="ir.ui.view">
+        <field name="name">ss.trip.tree</field>
+        <field name="model">ss.trip</field>
+        <field name="arch" type="xml">
+            <!-- Row text turns red if total_budget exceeds 5000 (Odoo 17 syntax).
+                 Default sort is by start_date descending. -->
+            <tree string="Trips" 
+                  decoration-danger="total_budget &gt; 5000" 
+                  default_order="start_date desc"
+                  class="o_list_view">
+                <field name="name" string="Trip Name"/>
+                <field name="start_date" string="Start Date"/>
+                <field name="end_date" string="End Date"/>
+                <field name="total_budget" widget="monetary" string="Total Budget"/>
+                <!-- Hidden helper field required for the monetary widget formatting -->
+                <field name="currency_id" column_invisible="True"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <!-- ==========================================
+         KANBAN VIEW (ss.trip)
+         ========================================== -->
+    <record id="view_ss_trip_kanban" model="ir.ui.view">
+        <field name="name">ss.trip.kanban</field>
+        <field name="model">ss.trip</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" default_order="start_date desc">
+                <!-- Fetch all fields needed by the QWeb template -->
+                <field name="id"/>
+                <field name="name"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="total_budget"/>
+                <field name="currency_id"/>
+                <field name="stop_ids"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <!-- Entire card is clickable to open form view.
+                             Features a premium card style with left accent border and gradient background -->
+                        <div t-attf-class="oe_kanban_global_click card shadow-sm border-start border-4 border-primary p-3 mb-2" 
+                             style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); min-height: 140px;">
+                            
+                            <div class="oe_kanban_details d-flex flex-column justify-content-between h-100">
+                                <!-- Top Section: Trip Title & Dates -->
+                                <div class="mb-2">
+                                    <h4 class="font-weight-bold text-dark mb-1">
+                                        <t t-out="record.name.raw_value"/>
+                                    </h4>
+                                    <div class="text-muted small">
+                                        <i class="fa fa-calendar me-1"/>
+                                        <t t-out="record.start_date.value"/> to <t t-out="record.end_date.value"/>
+                                    </div>
+                                </div>
+                                
+                                <!-- Bottom Section: Stops count, budget badge, progress bar -->
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <!-- Stops Count Badge -->
+                                        <span class="badge bg-primary text-white">
+                                            <i class="fa fa-map-marker me-1"/>
+                                            <t t-out="record.stop_ids.raw_value ? record.stop_ids.raw_value.length : 0"/> Stops
+                                        </span>
+                                        
+                                        <!-- Total Budget Displayed with ₹ Symbol -->
+                                        <span class="font-weight-bold text-success">
+                                            ₹ <t t-out="record.total_budget.value || record.total_budget.raw_value || '0'"/>
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Visual Progress Bar for Budget (0 to 10,000 scale) -->
+                                    <div class="mt-2">
+                                        <div class="d-flex justify-content-between small text-muted mb-1" style="font-size: 0.75rem;">
+                                            <span>Budget Consumption</span>
+                                            <span><t t-out="Math.min(100, Math.round((record.total_budget.raw_value || 0) / 10000 * 100))"/>%</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px; border-radius: 3px;">
+                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                 t-att-style="'width: ' + Math.min(100, Math.round((record.total_budget.raw_value || 0) / 10000 * 100)) + '%;'" 
+                                                 t-att-aria-valuenow="record.total_budget.raw_value || 0" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="10000"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
+    <!-- ==========================================
+         SEARCH VIEW (ss.trip)
+         ========================================== -->
+    <record id="view_ss_trip_search" model="ir.ui.view">
+        <field name="name">ss.trip.search</field>
+        <field name="model">ss.trip</field>
+        <field name="arch" type="xml">
+            <search string="Search Trips">
+                <!-- Search bar input mapping -->
+                <field name="name" string="Trip Name" filter_domain="[('name', 'ilike', self)]"/>
+                <field name="user_id" string="Organizer"/>
+                <field name="start_date" string="Start Date"/>
+                <field name="end_date" string="End Date"/>
+
+                <separator/>
+                <!-- Context filters -->
+                <filter string="My Trips" name="my_trips" domain="[('user_id', '=', uid)]"/>
+                <filter string="Active Trips" name="active" 
+                        domain="[('start_date', '&lt;=', context_today().strftime('%Y-%m-%d')), ('end_date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Future Trips" name="upcoming" 
+                        domain="[('start_date', '&gt;', context_today().strftime('%Y-%m-%d'))]"/>
+
+                <separator/>
+                <!-- Group By views -->
+                <group expand="0" string="Group By">
+                    <filter string="Organizer" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Start Date" name="group_start_date" context="{'group_by': 'start_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <!-- ==========================================
+         FORM VIEW (ss.trip) - NESTED BUILDER
+         ========================================== -->
+    <record id="view_ss_trip_form" model="ir.ui.view">
+        <field name="name">ss.trip.form</field>
+        <field name="model">ss.trip</field>
+        <field name="arch" type="xml">
+            <form string="Trip Planner">
+                <!-- Control header for workflow buttons -->
+                <header>
+                    <button name="action_share" string="Share Trip" type="object" class="oe_highlight" icon="fa-share-alt"/>
+                    <!-- Special save button inside header for wizard/dialog flows -->
+                    <button string="Save" class="btn-secondary" special="save"/>
+                </header>
+                
+                <sheet>
+                    <!-- Main Header / Trip Title Title -->
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" string="Trip Title"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. European Explorer Tour"/>
+                        </h1>
+                        <div class="text-muted d-flex align-items-center mb-3">
+                            <span class="me-2">Planned by:</span>
+                            <field name="user_id" readonly="1" options="{'no_open': True}"/>
+                        </div>
+                    </div>
+
+                    <!-- Main fields group -->
+                    <group name="trip_details">
+                        <group>
+                            <field name="start_date" placeholder="Select start date"/>
+                        </group>
+                        <group>
+                            <field name="end_date" placeholder="Select end date"/>
+                        </group>
+                    </group>
+                    
+                    <group name="trip_description">
+                        <field name="description" widget="text" placeholder="Write a short description or notes about the trip..."/>
+                    </group>
+
+                    <!-- Main Notebook Tabs -->
+                    <notebook>
+                        <!-- Tab 1: Nested Itinerary Stops and Activities Builder -->
+                        <page string="Itinerary Builder" name="itinerary_builder">
+                            <field name="stop_ids" widget="one2many_list" mode="tree,form" class="mt-2">
+                                <!-- Tree layout visible directly inside the page, inline-editable for speed -->
+                                <tree string="Stops" editable="bottom">
+                                    <field name="city" placeholder="e.g. Paris"/>
+                                    <field name="country" placeholder="e.g. France"/>
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+                                </tree>
+                                
+                                <!-- Form layout when stop record is expanded (Odoo opens in a modal dialog).
+                                     This contains the nested Activities One2many view. -->
+                                <form string="Stop Details">
+                                    <sheet>
+                                        <div class="oe_title">
+                                            <h2>Stop Information</h2>
+                                        </div>
+                                        <group>
+                                            <group>
+                                                <field name="city" placeholder="e.g. Paris"/>
+                                                <field name="country" placeholder="e.g. France"/>
+                                            </group>
+                                            <group>
+                                                <field name="start_date"/>
+                                                <field name="end_date"/>
+                                            </group>
+                                        </group>
+                                        
+                                        <!-- Nested Activities One2many Builder -->
+                                        <notebook>
+                                            <page string="Activities in this Stop" name="activities">
+                                                <field name="activity_ids" widget="one2many_list" mode="tree,form">
+                                                    <!-- Inline editable tree for quick activity scheduling -->
+                                                    <tree string="Activities" editable="bottom">
+                                                        <field name="name" placeholder="e.g. Eiffel Tower Visit"/>
+                                                        <!-- Color-coded badges for types -->
+                                                        <field name="type" widget="badge" 
+                                                               decoration-danger="type == 'adventure'" 
+                                                               decoration-warning="type == 'food'" 
+                                                               decoration-info="type == 'sightseeing'" 
+                                                               decoration-success="type == 'relax'"/>
+                                                        <field name="cost" sum="Total Activities Cost"/>
+                                                        <field name="duration" widget="float_time" placeholder="e.g. 2:00"/>
+                                                    </tree>
+                                                    
+                                                    <!-- Simple Activity Form view for details view if needed -->
+                                                    <form string="Activity Details">
+                                                        <group>
+                                                            <field name="name"/>
+                                                            <field name="type"/>
+                                                        </group>
+                                                        <group>
+                                                            <field name="cost"/>
+                                                            <field name="duration" widget="float_time"/>
+                                                        </group>
+                                                    </form>
+                                                </field>
+                                            </page>
+                                        </notebook>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+
+                        <!-- Tab 2: Budget Breakdown & Overview -->
+                        <page string="Budget Overview" name="budget_overview">
+                            <group>
+                                <div class="oe_title">
+                                    <h3>Estimated Total Budget</h3>
+                                    <h1>
+                                        <!-- Displays with large font and appropriate currency layout -->
+                                        <field name="total_budget" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    </h1>
+                                </div>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                            
+                            <!-- Detailed expense categories breakdown -->
+                            <group string="Expense Breakdown" name="expense_breakdown" col="2">
+                                <group>
+                                    <field name="budget_transport" widget="monetary" options="{'currency_field': 'currency_id'}" placeholder="₹ 0.00"/>
+                                    <field name="budget_stay" widget="monetary" options="{'currency_field': 'currency_id'}" placeholder="₹ 0.00"/>
+                                </group>
+                                <group>
+                                    <field name="budget_activities" widget="monetary" options="{'currency_field': 'currency_id'}" placeholder="₹ 0.00"/>
+                                    <field name="budget_meals" widget="monetary" options="{'currency_field': 'currency_id'}" placeholder="₹ 0.00"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==========================================
+         URL ACTIONS
+         ========================================== -->
+
+    <!-- URL Action for Sub-menu 3: "Dashboard"
+         Redirects the client to the custom website controller endpoint in the same window -->
+    <record id="action_safar_sutra_dashboard_url" model="ir.actions.act_url">
+        <field name="name">Dashboard</field>
+        <field name="url">/safarsutra/dashboard</field>
+        <field name="target">self</field>
+    </record>
+
+
+    <!-- ==========================================
+         MENU HIERARCHY
+         ========================================== -->
+
+    <!-- Top-Level Main Menu
+         Set sequence 10 so it sits nicely in the navbar, and uses the globe icon -->
+    <menuitem id="menu_safar_sutra_root" 
+              name="SafarSutra" 
+              web_icon="fa fa-globe" 
+              sequence="10"/>
+
+    <!-- Sub-menu 1: "My Trips"
+         Triggers the act_window that lists trips in Kanban, Tree, and Form modes -->
+    <menuitem id="menu_safar_sutra_my_trips" 
+              name="My Trips" 
+              parent="menu_safar_sutra_root" 
+              action="action_safar_sutra_my_trips" 
+              sequence="20"/>
+
+    <!-- Sub-menu 2: "Plan New Trip"
+         Triggers the act_window configured to load directly into form edit/create mode -->
+    <menuitem id="menu_safar_sutra_plan_new" 
+              name="Plan New Trip" 
+              parent="menu_safar_sutra_root" 
+              action="action_safar_sutra_plan_new" 
+              sequence="30"/>
+
+    <!-- Sub-menu 3: "Dashboard"
+         Triggers the URL action that takes the user to the web analytics dashboard -->
+    <menuitem id="menu_safar_sutra_dashboard" 
+              name="Dashboard" 
+              parent="menu_safar_sutra_root" 
+              action="action_safar_sutra_dashboard_url" 
+              sequence="40"/>
+
+</odoo>
