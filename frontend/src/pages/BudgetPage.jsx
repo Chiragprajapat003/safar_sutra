@@ -1,13 +1,14 @@
+import { useState } from 'react';
 import { useTrips } from '../context/TripContext';
-import { mockBudget } from '../services/mockData';
+import { mockBudgetOverview } from '../services/mockData';
 
-function DonutChart({ categories, spent }) {
+function DonutChart({ categories, totalSpent }) {
   const total = categories.reduce((s, c) => s + Math.abs(c.amount), 0);
   let cumulative = 0;
-  const r = 60, cx = 70, cy = 70, stroke = 24;
+  const r = 60, cx = 75, cy = 75, stroke = 22;
   const circumference = 2 * Math.PI * r;
-  const segments = categories.map(cat => {
-    const pct = total ? Math.abs(cat.amount) / total : 0;
+  const segments = categories.map((cat) => {
+    const pct = Math.abs(cat.amount) / total;
     const dasharray = pct * circumference;
     const offset = circumference - cumulative * circumference;
     cumulative += pct;
@@ -15,12 +16,14 @@ function DonutChart({ categories, spent }) {
   });
 
   return (
-    <svg width={140} height={140} viewBox="0 0 140 140">
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#eceef0" strokeWidth={stroke} />
+    <svg width={150} height={150} viewBox="0 0 150 150">
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#FAF7F2" strokeWidth={stroke} />
       {segments.map((seg, i) => (
         <circle
           key={i}
-          cx={cx} cy={cy} r={r}
+          cx={cx}
+          cy={cy}
+          r={r}
           fill="none"
           stroke={seg.color}
           strokeWidth={stroke}
@@ -29,9 +32,11 @@ function DonutChart({ categories, spent }) {
           style={{ transform: 'rotate(-90deg)', transformOrigin: `${cx}px ${cy}px` }}
         />
       ))}
-      <text x={cx} y={cy - 6} textAnchor="middle" className="text-[10px] fill-[#424654]" style={{ fontSize: 10 }}>Spent</text>
-      <text x={cx} y={cy + 14} textAnchor="middle" className="text-[18px] font-bold fill-[#191c1e]" style={{ fontSize: 18, fontWeight: 700 }}>
-        ${spent.toLocaleString()}
+      <text x={cx} y={cy - 8} textAnchor="middle" className="text-[10px] font-semibold fill-[#8A715F]">
+        Total Spent
+      </text>
+      <text x={cx} y={cy + 14} textAnchor="middle" className="text-[18px] font-black fill-[#2A180C]">
+        ${totalSpent.toLocaleString()}
       </text>
     </svg>
   );
@@ -39,176 +44,145 @@ function DonutChart({ categories, spent }) {
 
 export default function BudgetPage() {
   const { trips } = useTrips();
-
-  // Compute live budget and expenses
-  const totalBudget = trips.reduce((s, t) => s + (t.budget || 0), 0);
-  
-  const categoryTotals = {
-    accommodation: 0,
-    transport: 0,
-    activities: 0,
-    food: 0,
-    entertainment: 0,
-    relax: 0,
-    other: 0,
-  };
-
-  let totalSpent = 0;
-  trips.forEach(t => {
-    (t.days || []).forEach(d => {
-      (d.activities || []).forEach(act => {
-        const cost = act.cost || 0;
-        totalSpent += cost;
-        const cat = act.category || 'other';
-        
-        // Map common synonyms to standard categories
-        if (cat === 'hotel' || cat === 'accommodation') {
-          categoryTotals.accommodation += cost;
-        } else if (cat === 'transport' || cat === 'flight') {
-          categoryTotals.transport += cost;
-        } else if (cat === 'sightseeing' || cat === 'culture' || cat === 'activities' || cat === 'adventure') {
-          categoryTotals.activities += cost;
-        } else if (cat === 'food' || cat === 'restaurant') {
-          categoryTotals.food += cost;
-        } else if (cat === 'relax') {
-          categoryTotals.relax += cost;
-        } else if (cat === 'entertainment') {
-          categoryTotals.entertainment += cost;
-        } else {
-          categoryTotals.other += cost;
-        }
-      });
-    });
-  });
-
-  const categories = [
-    { name: 'Accommodation', amount: categoryTotals.accommodation, color: '#0057d9', icon: 'hotel' },
-    { name: 'Transport', amount: categoryTotals.transport, color: '#fe7944', icon: 'flight' },
-    { name: 'Activities', amount: categoryTotals.activities, color: '#624315', icon: 'attractions' },
-    { name: 'Meals & Food', amount: categoryTotals.food, color: '#2ecc71', icon: 'restaurant' },
-    { name: 'Relaxation', amount: categoryTotals.relax, color: '#9b59b6', icon: 'spa' },
-    { name: 'Entertainment', amount: categoryTotals.entertainment, color: '#e91e63', icon: 'theater_comedy' },
-    { name: 'Other', amount: categoryTotals.other, color: '#95a5a6', icon: 'more_horiz' },
-  ].filter(c => c.amount > 0 || ['Accommodation', 'Transport', 'Activities', 'Meals & Food'].includes(c.name));
-
-  const remaining = totalBudget - totalSpent;
-  const pct = totalBudget ? Math.round((totalSpent / totalBudget) * 100) : 0;
+  const budget = mockBudgetOverview;
+  const remaining = budget.totalAllocated - budget.totalSpent;
+  const pct = Math.round((budget.totalSpent / budget.totalAllocated) * 100);
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 md:px-16 py-10">
-      <h1 className="text-3xl font-semibold text-[#191c1e] mb-2">Budget Dashboard</h1>
-      <p className="text-base text-[#424654] mb-8">Track your travel expenses across all trips.</p>
+    <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-12 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-extrabold text-[#2A180C] tracking-tight">Trip Budget & Cost Breakdown</h1>
+        <p className="text-sm text-[#6B5646] mt-1">
+          Monitor your travel expenses across accommodation, transport, meals, and pilgrimage tours.
+        </p>
+      </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: 'Total Budget', value: `$${totalBudget.toLocaleString()}`, icon: 'account_balance_wallet', color: '#0057d9' },
-          { label: 'Total Spent', value: `$${totalSpent.toLocaleString()}`, icon: 'payments', color: '#fe7944' },
-          { label: 'Remaining', value: `$${remaining.toLocaleString()}`, icon: 'savings', color: '#2ecc71' },
-          { label: 'Trips Active', value: trips.length, icon: 'luggage', color: '#624315' },
-        ].map(({ label, value, icon, color }) => (
-          <div key={label} className="bg-white rounded-2xl p-5 shadow-ambient-md border border-[#c3c6d7]/20">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: `${color}15` }}>
-              <span className="material-symbols-outlined" style={{ color }}>{icon}</span>
+      {/* Overbudget Alert Notice (Feature 9 requirement) */}
+      {pct > 80 && (
+        <div className="mb-6 p-4 rounded-2xl bg-[#FFF5F2] border border-[#F4C2B8] text-[#93000A] flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-red-600 text-xl">warning</span>
+            <div>
+              <p className="text-xs font-bold">Budget Alert Notice</p>
+              <p className="text-xs text-[#7A1F1D]">You have used {pct}% of your allocated travel budget. Consider reviewing shopping & dining costs.</p>
             </div>
-            <p className="text-2xl font-bold text-[#191c1e]">{value}</p>
-            <p className="text-xs text-[#424654] mt-0.5">{label}</p>
+          </div>
+          <span className="text-xs font-bold px-3 py-1 bg-red-100 rounded-lg">Action Needed</span>
+        </div>
+      )}
+
+      {/* Top 4 Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
+        {[
+          { label: 'Total Allocated Budget', value: `$${budget.totalAllocated.toLocaleString()}`, icon: 'account_balance_wallet', color: '#4A2E18' },
+          { label: 'Total Amount Spent', value: `$${budget.totalSpent.toLocaleString()}`, icon: 'payments', color: '#C88A4B' },
+          { label: 'Remaining Balance', value: `$${remaining.toLocaleString()}`, icon: 'savings', color: '#2E6F40' },
+          { label: 'Average Cost Per Day', value: `$${budget.avgCostPerDay}`, icon: 'calendar_month', color: '#8D582A' },
+        ].map(({ label, value, icon, color }) => (
+          <div key={label} className="bg-white rounded-3xl p-5 shadow-warm-md border border-[#EADBCE] flex flex-col justify-between">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-3" style={{ backgroundColor: `${color}15` }}>
+              <span className="material-symbols-outlined text-xl" style={{ color }}>{icon}</span>
+            </div>
+            <div>
+              <p className="text-2xl sm:text-3xl font-black text-[#2A180C]">{value}</p>
+              <p className="text-xs font-semibold text-[#8A715F] mt-1">{label}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Donut Chart */}
-        <div className="bg-white rounded-2xl p-6 shadow-ambient-md border border-[#c3c6d7]/20">
-          <h2 className="text-lg font-semibold text-[#191c1e] mb-6">Spending by Category</h2>
-          <div className="flex items-center gap-8">
-            <DonutChart categories={categories} spent={totalSpent} />
-            <div className="flex-1 space-y-3">
-              {categories.map(cat => (
-                <div key={cat.name} className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
-                  <div className="flex-1 flex justify-between items-center">
-                    <span className="text-sm text-[#424654]">{cat.name}</span>
-                    <span className="text-sm font-semibold text-[#191c1e]">${Math.abs(cat.amount)}</span>
+      {/* Grid: Donut Chart & Category Progress */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
+        {/* Donut Chart (5 cols) */}
+        <div className="lg:col-span-5 bg-white rounded-3xl p-6 shadow-warm-md border border-[#EADBCE] flex flex-col justify-between">
+          <h2 className="text-lg font-bold text-[#2A180C] mb-4">Spending by Category</h2>
+          <div className="flex flex-col sm:flex-row items-center gap-6 my-auto">
+            <div className="shrink-0">
+              <DonutChart categories={budget.categories} totalSpent={budget.totalSpent} />
+            </div>
+            <div className="flex-1 space-y-2.5 w-full">
+              {budget.categories.map((cat) => (
+                <div key={cat.name} className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
+                    <span className="text-[#5A4536] font-medium truncate max-w-[130px]">{cat.name}</span>
                   </div>
+                  <span className="font-bold text-[#2A180C]">${cat.amount.toLocaleString()}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Progress breakdown */}
-        <div className="bg-white rounded-2xl p-6 shadow-ambient-md border border-[#c3c6d7]/20">
-          <h2 className="text-lg font-semibold text-[#191c1e] mb-6">Budget Progress</h2>
-
-          {/* Overall */}
-          <div className="mb-5">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="font-medium text-[#191c1e]">Overall Budget</span>
-              <span className="text-[#424654]">{pct}% used</span>
-            </div>
-            <div className="w-full bg-[#eceef0] h-3 rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{ width: `${pct}%`, backgroundColor: pct > 80 ? '#ba1a1a' : pct > 60 ? '#fe7944' : '#0057d9' }}
-              />
-            </div>
-            <div className="flex justify-between text-xs text-[#424654] mt-1">
-              <span>$0</span><span>${totalBudget.toLocaleString()}</span>
-            </div>
+        {/* Progress Bars by Category (7 cols) */}
+        <div className="lg:col-span-7 bg-white rounded-3xl p-6 shadow-warm-md border border-[#EADBCE]">
+          <h2 className="text-lg font-bold text-[#2A180C] mb-4">Category Budget Limits</h2>
+          <div className="space-y-4">
+            {budget.categories.map((cat) => {
+              const p = Math.round((cat.amount / cat.budget) * 100);
+              return (
+                <div key={cat.name} className="space-y-1.5">
+                  <div className="flex justify-between text-xs font-bold text-[#2A180C]">
+                    <span className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm" style={{ color: cat.color }}>{cat.icon}</span>
+                      {cat.name}
+                    </span>
+                    <span className="text-[#8A715F]">
+                      ${cat.amount.toLocaleString()} / ${cat.budget.toLocaleString()} ({p}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-[#FAF7F2] h-2.5 rounded-full overflow-hidden border border-[#EADBCE]">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(p, 100)}%`, backgroundColor: cat.color }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
-
-          {/* Per-category bars */}
-          {categories.map(cat => {
-            const p = totalBudget ? Math.round((cat.amount / totalBudget) * 100) : 0;
-            return (
-              <div key={cat.name} className="mb-3">
-                <div className="flex justify-between text-xs text-[#424654] mb-1">
-                  <span className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-sm" style={{ color: cat.color }}>{cat.icon}</span>
-                    {cat.name}
-                  </span>
-                  <span className="font-medium text-[#191c1e]">${Math.abs(cat.amount)}</span>
-                </div>
-                <div className="w-full bg-[#eceef0] h-2 rounded-full">
-                  <div className="h-full rounded-full" style={{ width: `${Math.abs(p)}%`, backgroundColor: cat.color }} />
-                </div>
-              </div>
-            );
-          })}
         </div>
       </div>
 
-      {/* Per-trip breakdown */}
-      <div className="bg-white rounded-2xl p-6 shadow-ambient-md border border-[#c3c6d7]/20">
-        <h2 className="text-lg font-semibold text-[#191c1e] mb-5">Budget by Trip</h2>
+      {/* Per-trip breakdown table */}
+      <div className="bg-white rounded-3xl p-6 shadow-warm-md border border-[#EADBCE]">
+        <h2 className="text-lg font-bold text-[#2A180C] mb-4">Budget & Cost Breakdown by Trip</h2>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-[#c3c6d7]/30">
-                {['Trip', 'Dates', 'Total Budget', 'Spent', 'Remaining', 'Progress'].map(h => (
-                  <th key={h} className="text-left py-2 px-3 text-xs font-semibold text-[#424654] uppercase tracking-wide">{h}</th>
-                ))}
+              <tr className="border-b border-[#EADBCE] text-[#8A715F] uppercase font-bold text-[10px] tracking-wider">
+                <th className="pb-3 px-3">Trip / Yatra</th>
+                <th className="pb-3 px-3">Travel Dates</th>
+                <th className="pb-3 px-3">Total Budget</th>
+                <th className="pb-3 px-3">Spent</th>
+                <th className="pb-3 px-3">Remaining</th>
+                <th className="pb-3 px-3">Utilization</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#c3c6d7]/20">
-              {trips.map(trip => {
-                const spent = (trip.days || []).reduce((s, d) => s + (d.activities || []).reduce((a, act) => a + (act.cost || 0), 0), 0);
+            <tbody className="divide-y divide-[#EADBCE]/50">
+              {trips.map((trip) => {
+                const spent = trip.spent || (trip.days || []).reduce((s, d) => s + (d.activities || []).reduce((a, act) => a + (act.cost || 0), 0), 0);
                 const rem = (trip.budget || 0) - spent;
                 const p = trip.budget ? Math.round((spent / trip.budget) * 100) : 0;
                 return (
-                  <tr key={trip.id} className="hover:bg-[#f8f9fc] transition-colors">
-                    <td className="py-3 px-3 font-medium text-[#191c1e]">{trip.name}</td>
-                    <td className="py-3 px-3 text-[#424654]">{trip.startDate} – {trip.endDate}</td>
-                    <td className="py-3 px-3 font-semibold">${trip.budget?.toLocaleString()}</td>
-                    <td className="py-3 px-3 text-[#fe7944] font-medium">${spent.toLocaleString()}</td>
-                    <td className={`py-3 px-3 font-medium ${rem >= 0 ? 'text-green-600' : 'text-[#ba1a1a]'}`}>${rem.toLocaleString()}</td>
-                    <td className="py-3 px-3">
+                  <tr key={trip.id} className="hover:bg-[#FAF7F2] transition-colors">
+                    <td className="py-3.5 px-3 font-bold text-[#2A180C]">{trip.name}</td>
+                    <td className="py-3.5 px-3 text-[#6B5646]">{trip.startDate} – {trip.endDate}</td>
+                    <td className="py-3.5 px-3 font-bold text-[#2A180C]">${trip.budget?.toLocaleString()}</td>
+                    <td className="py-3.5 px-3 font-bold text-[#C88A4B]">${spent.toLocaleString()}</td>
+                    <td className={`py-3.5 px-3 font-bold ${rem >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                      ${rem.toLocaleString()}
+                    </td>
+                    <td className="py-3.5 px-3">
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-[#eceef0] h-2 rounded-full">
-                          <div className="h-full rounded-full bg-[#0057d9]" style={{ width: `${Math.min(p, 100)}%` }} />
+                        <div className="w-24 bg-[#FAF7F2] h-2 rounded-full border border-[#EADBCE]">
+                          <div
+                            className="bg-[#4A2E18] h-full rounded-full"
+                            style={{ width: `${Math.min(p, 100)}%` }}
+                          />
                         </div>
-                        <span className="text-xs text-[#424654] w-8">{p}%</span>
+                        <span className="font-bold text-[#4A2E18]">{p}%</span>
                       </div>
                     </td>
                   </tr>
@@ -221,4 +195,3 @@ export default function BudgetPage() {
     </div>
   );
 }
-
