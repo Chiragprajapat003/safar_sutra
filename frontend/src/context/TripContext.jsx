@@ -10,6 +10,8 @@ const mapBackendTripToFrontend = (backendTrip) => {
     ...backendTrip,
     startDate: backendTrip.start_date,
     endDate: backendTrip.end_date,
+    budget: Number(backendTrip.total_budget) || Number(backendTrip.budget) || 0,
+    spent: Number(backendTrip.spent_so_far) || Number(backendTrip.spent) || 0,
     coverImage: backendTrip.cover_photo_url || 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop&q=60',
     progress: backendTrip.progress !== undefined ? backendTrip.progress : 15,
     daysUntil: backendTrip.start_date ? Math.ceil((new Date(backendTrip.start_date) - new Date()) / (1000 * 60 * 60 * 24)) : 0,

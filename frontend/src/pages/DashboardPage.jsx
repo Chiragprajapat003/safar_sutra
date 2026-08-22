@@ -13,6 +13,17 @@ export default function DashboardPage() {
 
   const upcomingTrips = trips.filter((t) => t.status === 'upcoming' || t.status === 'planning');
 
+  // Dynamic budget calculations
+  const totalAllocated = trips.reduce((sum, t) => sum + (t.budget || 0), 0);
+  const totalSpent = trips.reduce((sum, t) => sum + (t.spent || 0), 0);
+  const totalDays = trips.reduce((sum, t) => {
+    if (!t.startDate || !t.endDate) return sum;
+    const diff = Math.abs(new Date(t.endDate) - new Date(t.startDate));
+    return sum + Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
+  }, 0);
+  const avgCostPerDay = totalDays > 0 ? Math.round(totalSpent / totalDays) : 0;
+  const budgetUtilizationPct = totalAllocated > 0 ? Math.round((totalSpent / totalAllocated) * 100) : 0;
+
   return (
     <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-12 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
       {/* ── Left Sidebar (3 cols) ── */}
@@ -66,7 +77,7 @@ export default function DashboardPage() {
           </h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EADBCE]">
-              <span className="text-3xl font-extrabold text-[#4A2E18]">{user?.countriesVisited || 14}</span>
+              <span className="text-3xl font-extrabold text-[#4A2E18]">{user?.countriesVisited || 0}</span>
               <p className="text-xs font-semibold text-[#8A715F] mt-1">Destinations</p>
             </div>
             <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EADBCE]">
@@ -84,16 +95,16 @@ export default function DashboardPage() {
           </div>
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-semibold text-[#5A4536]">
-              <span>Total Spent: ${mockBudgetOverview.totalSpent.toLocaleString()}</span>
-              <span>Allocated: ${mockBudgetOverview.totalAllocated.toLocaleString()}</span>
+              <span>Total Spent: ${totalSpent.toLocaleString()}</span>
+              <span>Allocated: ${totalAllocated.toLocaleString()}</span>
             </div>
             <div className="w-full bg-[#FAF7F2] h-2.5 rounded-full overflow-hidden border border-[#EADBCE]">
               <div
                 className="bg-[#4A2E18] h-full rounded-full"
-                style={{ width: `${Math.round((mockBudgetOverview.totalSpent / mockBudgetOverview.totalAllocated) * 100)}%` }}
+                style={{ width: `${Math.min(budgetUtilizationPct, 100)}%` }}
               />
             </div>
-            <p className="text-[11px] text-[#8A715F] pt-1">Avg. Cost per day: <strong className="text-[#2A180C]">${mockBudgetOverview.avgCostPerDay}</strong></p>
+            <p className="text-[11px] text-[#8A715F] pt-1">Avg. Cost per day: <strong className="text-[#2A180C]">${avgCostPerDay}</strong></p>
           </div>
         </div>
 
