@@ -33,6 +33,19 @@ function PrivateRoute({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
+function AdminRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#FAF7F2]">
+        <span className="material-symbols-outlined text-4xl text-[#4A2E18] animate-spin">progress_activity</span>
+      </div>
+    );
+  }
+  const isAdmin = user?.email === 'demo@safarsutra.com' || user?.email?.toLowerCase().includes('admin');
+  return user && isAdmin ? children : <Navigate to="/dashboard" replace />;
+}
+
 function AppRoutes() {
   return (
     <Routes>
@@ -57,7 +70,7 @@ function AppRoutes() {
         <Route path="/budget" element={<BudgetPage />} />
         <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/admin" element={<AdminAnalyticsPage />} />
+        <Route path="/admin" element={<AdminRoute><AdminAnalyticsPage /></AdminRoute>} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>
